@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": [
+    "src/mock-foundation.ts",
+    "src/types/index.ts",
+    "src/auth-core/enhanced-token-manager.ts",
+    "src/auth-core/token-manager.ts",
+    "src/auth-core/session-manager.ts",
+    "src/auth-core/session-storage.ts",
+    "src/utils/norwegian-compliance-automation.ts"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}
+EOF < /dev/null

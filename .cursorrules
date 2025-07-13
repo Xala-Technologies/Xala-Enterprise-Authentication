@@ -1,0 +1,688 @@
+
+# AI Enterprise Standards Enforcement Rules
+# Auto-generated from @xala-technologies/enterprise-standards v3.0.2
+
+## CRITICAL AI RULES - MUST BE FOLLOWED
+
+### TypeScript Enforcement (Zero Tolerance)
+- ALWAYS use explicit return types for functions
+- NEVER use 'any' type - always create specific types
+- ALWAYS enable strict mode in TypeScript configuration
+- ALWAYS handle null/undefined cases explicitly
+- ALWAYS use exact optional property types
+
+### ESLint Enforcement (Auto-Applied)
+- ALWAYS run ESLint before code generation
+- ALWAYS fix ESLint errors immediately
+- NEVER ignore ESLint warnings without justification
+- ALWAYS follow import order rules
+- ALWAYS maintain complexity limits (max 10)
+
+### Code Structure Enforcement
+- NEVER create files over 200 lines
+- NEVER create functions over 20 lines
+- ALWAYS add JSDoc to public methods and classes
+- ALWAYS follow SOLID principles
+- ALWAYS use composition over inheritance
+
+### Norwegian Compliance Enforcement
+
+- ALWAYS implement NSM classification when handling sensitive data
+- ALWAYS ensure GDPR compliance for data processing
+- ALWAYS implement WCAG AA accessibility standards
+- ALWAYS add audit logging for sensitive operations
+
+
+### Platform-Specific Rules (nextjs)
+
+- ALWAYS use App Router over Pages Router
+- ALWAYS implement proper SEO with metadata
+- ALWAYS use Server Components by default
+- ALWAYS implement proper error boundaries
+- ALWAYS use TypeScript for all components
+
+### Frontend Architecture Rules
+
+## 🎨 **FRONTEND ARCHITECTURE ENFORCEMENT**
+
+### **COMPONENT-ONLY DEVELOPMENT**
+
+**FORBIDDEN HTML ELEMENTS IN PAGES:**
+- **NEVER** use <div> directly in pages
+- **NEVER** use <span> directly in pages
+- **NEVER** use <p> directly in pages
+- **NEVER** use <h1> directly in pages
+- **NEVER** use <h2> directly in pages
+- **NEVER** use <h3> directly in pages
+- **NEVER** use <h4> directly in pages
+- **NEVER** use <h5> directly in pages
+- **NEVER** use <h6> directly in pages
+- **NEVER** use <button> directly in pages
+- **NEVER** use <input> directly in pages
+- **NEVER** use <textarea> directly in pages
+- **NEVER** use <select> directly in pages
+- **NEVER** use <form> directly in pages
+- **NEVER** use <table> directly in pages
+- **NEVER** use <ul> directly in pages
+- **NEVER** use <ol> directly in pages
+- **NEVER** use <li> directly in pages
+- **NEVER** use <img> directly in pages
+- **NEVER** use <a> directly in pages
+- **NEVER** use <nav> directly in pages
+- **NEVER** use <header> directly in pages
+- **NEVER** use <footer> directly in pages
+- **NEVER** use <section> directly in pages
+- **NEVER** use <article> directly in pages
+- **NEVER** use <aside> directly in pages
+- **NEVER** use <main> directly in pages
+
+**REQUIRED COMPONENT USAGE:**
+- **ALWAYS** use Container component instead of HTML
+- **ALWAYS** use Section component instead of HTML
+- **ALWAYS** use Flex component instead of HTML
+- **ALWAYS** use Stack component instead of HTML
+- **ALWAYS** use Grid component instead of HTML
+- **ALWAYS** use Button component instead of HTML
+- **ALWAYS** use TextField component instead of HTML
+- **ALWAYS** use Select component instead of HTML
+- **ALWAYS** use Form component instead of HTML
+- **ALWAYS** use Card component instead of HTML
+- **ALWAYS** use Navigation component instead of HTML
+- **ALWAYS** use Header component instead of HTML
+- **ALWAYS** use Footer component instead of HTML
+- **ALWAYS** use Link component instead of HTML
+- **ALWAYS** use Image component instead of HTML
+- **ALWAYS** use Next.js Image component instead of HTML
+- **ALWAYS** use Next.js Link component instead of HTML
+- **ALWAYS** use Next.js Head component instead of HTML
+
+**ENFORCEMENT RULES:**
+- **NEVER** write raw HTML elements in page components
+- **ALWAYS** use semantic UI components from @xala/ui
+- **ALWAYS** compose pages using high-level components only
+- **NEVER** use className or style props directly
+- **ALWAYS** use design tokens through component props
+
+### **BASE PAGE SYSTEM**
+
+**REQUIRED BASE COMPONENT:**
+- **ALWAYS** extend from `NorwegianGovernmentPage`
+- **NEVER** create pages without the base page wrapper
+- **ALWAYS** include accessibility features from base
+- **ALWAYS** maintain consistent header/footer structure
+
+**EXAMPLE PAGE STRUCTURE:**
+```tsx
+// ✅ CORRECT - Uses base page and components only
+function MyPage() {
+  return (
+    <NorwegianGovernmentPage
+      title="Page Title"
+      description="Page description"
+      breadcrumbs={breadcrumbs}
+    >
+      <Container>
+        <Section>
+          <PageHeader>
+            <PageTitle>Welcome</PageTitle>
+          </PageHeader>
+          <Card>
+            <CardContent>
+              <Text>Content here</Text>
+            </CardContent>
+          </Card>
+        </Section>
+      </Container>
+    </NorwegianGovernmentPage>
+  );
+}
+
+// ❌ WRONG - Uses raw HTML elements
+function BadPage() {
+  return (
+    <div>
+      <h1>Title</h1>
+      <p>Content</p>
+    </div>
+  );
+}
+```
+
+### **DESIGN TOKEN SYSTEM**
+
+**FORBIDDEN STYLING PATTERNS:**
+- **NEVER** use inline styles (`style={{}}`)
+- **NEVER** use hardcoded colors, spacing, or typography
+- **NEVER** use className for styling
+- **NEVER** import CSS files directly
+
+**REQUIRED TOKEN USAGE:**
+- **ALWAYS** use @xala/design-system/tokens/colors
+- **ALWAYS** use @xala/design-system/tokens/spacing
+- **ALWAYS** use @xala/design-system/tokens/typography
+- **ALWAYS** use @xala/design-system/tokens/elevation
+
+**CORRECT STYLING APPROACH:**
+```tsx
+// ✅ CORRECT - Uses design tokens through components
+<Button variant="primary" size="large">
+  Submit
+</Button>
+
+<Card elevation="medium" spacing="large">
+  <Text color="primary" size="body">
+    Content
+  </Text>
+</Card>
+
+// ❌ WRONG - Direct styling
+<button style={{backgroundColor: '#0066cc', padding: '12px'}}>
+  Submit
+</button>
+```
+
+### **NORWEGIAN COMPLIANCE**
+
+**REQUIRED COLOR PALETTE:**
+- #0066cc
+- #fafbfc
+- #495057
+- #212529
+
+**REQUIRED TYPOGRAPHY:**
+- Source Sans Pro
+- Inter
+- -apple-system
+- BlinkMacSystemFont
+
+**ACCESSIBILITY REQUIREMENTS:**
+- **ALWAYS** maintain WCAG_AAA compliance
+- **ALWAYS** use 7:1 contrast ratios
+- **ALWAYS** include Norwegian language support
+- **ALWAYS** provide keyboard navigation
+- **ALWAYS** include screen reader support
+
+**SPACING SYSTEM:**
+- **ALWAYS** use 8px-grid-system
+- **NEVER** use arbitrary spacing values
+- **ALWAYS** use multiples of 8px (8, 16, 24, 32, 48, 64)
+
+### **MULTI-LANGUAGE SUPPORT**
+
+**LOCALIZATION REQUIREMENTS:**
+- **NEVER** use hardcoded text strings
+- **ALWAYS** use @xala/localization package
+- **ALWAYS** support Norwegian (Bokmål/Nynorsk) and English
+- **ALWAYS** use proper language codes (no, nb, nn, en)
+
+**CORRECT LOCALIZATION:**
+```tsx
+// ✅ CORRECT - Uses localization
+import { useTranslation } from '@xala/localization';
+
+function MyComponent() {
+  const { t } = useTranslation();
+  
+  return (
+    <Button>
+      {t('common.submit')}
+    </Button>
+  );
+}
+
+// ❌ WRONG - Hardcoded text
+function BadComponent() {
+  return (
+    <Button>
+      Submit
+    </Button>
+  );
+}
+```
+
+### **FRAMEWORK-AGNOSTIC COMPONENTS**
+
+**PORTABILITY REQUIREMENTS:**
+- **ALWAYS** create framework-agnostic components
+- **NEVER** use React/Vue/Angular specific patterns in shared components
+- **ALWAYS** use generic, composable primitives
+- **NEVER** couple components to specific frameworks
+
+**SEMANTIC COMPONENT USAGE:**
+- **ALWAYS** use semantic component names (Container, Section, Card)
+- **NEVER** use layout-specific names (Row, Column)
+- **ALWAYS** compose complex layouts from simple primitives
+- **NEVER** create monolithic components
+
+---
+
+## 🚫 **FORBIDDEN FRONTEND PATTERNS**
+
+### **NEVER DO THIS:**
+```tsx
+// ❌ Raw HTML in pages
+<div className="container">
+  <h1 style={{color: '#0066cc'}}>Title</h1>
+  <p>Content</p>
+</div>
+
+// ❌ Inline styles
+<button style={{backgroundColor: 'blue', padding: '10px'}}>
+  Click me
+</button>
+
+// ❌ Hardcoded text
+<span>Welcome to our application</span>
+
+// ❌ CSS classes
+<div className="my-custom-class">
+  Content
+</div>
+```
+
+### **ALWAYS DO THIS:**
+```tsx
+// ✅ Component-only architecture
+<NorwegianGovernmentPage title={t('page.title')}>
+  <Container>
+    <Section>
+      <PageHeader>
+        <PageTitle>{t('page.welcome')}</PageTitle>
+      </PageHeader>
+      <Card>
+        <CardContent>
+          <Text>{t('page.content')}</Text>
+          <Button variant="primary" size="large">
+            {t('common.submit')}
+          </Button>
+        </CardContent>
+      </Card>
+    </Section>
+  </Container>
+</NorwegianGovernmentPage>
+```
+
+---
+
+## 🔍 **VALIDATION CHECKLIST**
+
+Before generating any frontend code, verify:
+- [ ] No raw HTML elements in pages
+- [ ] All pages extend from NorwegianGovernmentPage
+- [ ] All styling uses design tokens through components
+- [ ] All text uses localization system
+- [ ] All components are framework-agnostic
+- [ ] Norwegian compliance colors and typography
+- [ ] WCAG AAA accessibility standards
+- [ ] 8px grid spacing system
+- [ ] Semantic component composition
+
+
+
+### Code Patterns to Follow
+
+- ALWAYS use explicit return types
+- ALWAYS handle errors with try/catch
+- ALWAYS use async/await over promises
+- ALWAYS implement proper logging
+- ALWAYS use composition over inheritance
+- ALWAYS validate input parameters
+- ALWAYS use meaningful variable names
+- ALWAYS implement proper TypeScript interfaces
+
+### Forbidden Patterns (Never Use)
+
+- NEVER use 'any' type
+- NEVER ignore TypeScript errors
+- NEVER use magic numbers
+- NEVER hardcode configuration values
+- NEVER create deeply nested code
+- NEVER ignore ESLint warnings
+- NEVER skip error handling
+- NEVER use implicit returns
+
+### Pre-Generation Checklist
+1. Verify TypeScript configuration is loaded
+2. Verify ESLint configuration is loaded
+3. Verify Jest configuration is loaded
+4. Check for existing similar code/components
+5. Ensure compliance requirements are met
+6. Validate against enterprise standards
+
+### Post-Generation Validation
+1. Run TypeScript type checking
+2. Run ESLint validation
+3. Run Jest tests if applicable
+4. Verify no lint errors exist
+5. Verify no type errors exist
+6. Verify compliance standards are met
+
+## CONFIGURATION CONSUMPTION
+
+Use these configurations automatically:
+
+```typescript
+// Auto-apply these configurations
+const config = {
+  "eslint": {
+    "extends": [
+      "@xala-technologies/enterprise-standards/configs/eslint/base.cjs",
+      "@xala-technologies/enterprise-standards/configs/eslint/platforms/nextjs.cjs",
+      "@xala-technologies/enterprise-standards/configs/eslint/enterprise-security.cjs",
+      "@xala-technologies/enterprise-standards/configs/eslint/gdpr-compliance.cjs",
+      "@xala-technologies/enterprise-standards/configs/eslint/accessibility-wcag.cjs"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module",
+      "project": "./tsconfig.json"
+    },
+    "rules": {
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "no-console": "warn",
+      "no-debugger": "error"
+    }
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.{ts,tsx}",
+      "**/*.(test|spec).{ts,tsx}"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/**/*.test.{ts,tsx}",
+      "!src/**/__tests__/**/*"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 95,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "testTimeout": 10000,
+    "verbose": true,
+    "passWithNoTests": true,
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "moduleNameMapping": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  },
+  "typescript": {
+    "compilerOptions": {
+      "target": "ES2020",
+      "lib": [
+        "dom",
+        "dom.iterable",
+        "ES2020"
+      ],
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "exactOptionalPropertyTypes": true,
+      "noImplicitAny": true,
+      "noImplicitThis": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "noUncheckedIndexedAccess": true,
+      "noImplicitOverride": true,
+      "useUnknownInCatchVariables": true,
+      "forceConsistentCasingInFileNames": true,
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true,
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "baseUrl": ".",
+      "paths": {
+        "@/*": [
+          "src/*"
+        ]
+      },
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "skipLibCheck": true,
+      "jsx": "preserve",
+      "allowJs": true,
+      "incremental": true,
+      "plugins": [
+        {
+          "name": "next"
+        }
+      ]
+    },
+    "include": [
+      "src/**/*",
+      "next-env.d.ts",
+      ".next/types/**/*.ts"
+    ],
+    "exclude": [
+      "node_modules",
+      "dist",
+      "build",
+      "coverage",
+      "configs",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/*.e2e-spec.ts"
+    ]
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "endOfLine": "lf",
+    "arrowParens": "avoid",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "quoteProps": "as-needed"
+  },
+  "platform": "nextjs",
+  "environment": "development",
+  "compliance": {
+    "security": {
+      "level": "CONFIDENTIAL",
+      "description": "Enterprise package with restricted access",
+      "requirements": [
+        "Authentication",
+        "Audit trail",
+        "Data encryption"
+      ]
+    },
+    "gdpr": {
+      "dataProcessing": true,
+      "consentManagement": true,
+      "rightToErasure": true,
+      "dataPortability": true
+    },
+    "accessibility": {
+      "wcagLevel": "AAA",
+      "screenReaderSupport": true,
+      "keyboardNavigation": true,
+      "colorContrast": true
+    }
+  }
+};
+```
+
+## ENFORCEMENT RULES
+
+Auto-enforce these rules:
+
+```typescript
+// Apply these enforcement rules
+const enforcement = {
+  "typescript": {
+    "strictMode": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "requiredReturnTypes": true
+  },
+  "eslint": {
+    "securityRules": true,
+    "accessibilityRules": true,
+    "importOrderRules": true,
+    "complexityLimits": true,
+    "namingConventions": true
+  },
+  "structure": {
+    "maxFileLines": 200,
+    "maxFunctionLines": 20,
+    "maxComplexity": 10,
+    "requireJSDoc": true,
+    "solidPrinciples": true
+  },
+  "compliance": {
+    "nsmClassification": true,
+    "gdprCompliance": true,
+    "wcagCompliance": true,
+    "auditLogging": true
+  },
+  "frontendArchitecture": {
+    "componentOnlyDevelopment": {
+      "forbiddenHtmlElements": [
+        "div",
+        "span",
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "button",
+        "input",
+        "textarea",
+        "select",
+        "form",
+        "table",
+        "ul",
+        "ol",
+        "li",
+        "img",
+        "a",
+        "nav",
+        "header",
+        "footer",
+        "section",
+        "article",
+        "aside",
+        "main"
+      ],
+      "requiredComponentUsage": [
+        "Container",
+        "Section",
+        "Flex",
+        "Stack",
+        "Grid",
+        "Button",
+        "TextField",
+        "Select",
+        "Form",
+        "Card",
+        "Navigation",
+        "Header",
+        "Footer",
+        "Link",
+        "Image",
+        "Next.js Image",
+        "Next.js Link",
+        "Next.js Head"
+      ],
+      "enforceSemanticComponents": true,
+      "validateComponentHierarchy": true
+    },
+    "basePageSystem": {
+      "requiredBaseComponent": "NorwegianGovernmentPage",
+      "enforceConsistentStructure": true,
+      "requireAccessibilityFeatures": true,
+      "validatePageStructure": true
+    },
+    "designTokenSystem": {
+      "forbiddenInlineStyles": true,
+      "requiredTokenUsage": [
+        "@xala/design-system/tokens/colors",
+        "@xala/design-system/tokens/spacing",
+        "@xala/design-system/tokens/typography",
+        "@xala/design-system/tokens/elevation"
+      ],
+      "validateTokenReferences": true,
+      "enforceTokenNaming": true
+    },
+    "norwegianCompliance": {
+      "requiredColorPalette": [
+        "#0066cc",
+        "#fafbfc",
+        "#495057",
+        "#212529"
+      ],
+      "requiredTypography": [
+        "Source Sans Pro",
+        "Inter",
+        "-apple-system",
+        "BlinkMacSystemFont"
+      ],
+      "requiredSpacingSystem": "8px-grid-system",
+      "enforceAccessibility": "WCAG_AAA"
+    }
+  }
+};
+```
+
+## CODE PATTERNS
+
+Use these patterns:
+
+```typescript
+// Follow these patterns
+const patterns = {
+  "patterns": {
+    "errorHandling": "\ntry {\n  // Implementation\n} catch (error) {\n  // Always type the error\n  const typedError = error as Error;\n  logger.error('Operation failed', { error: typedError.message });\n  throw new CustomError('Operation failed', typedError);\n}",
+    "asyncAwait": "\nasync function operationName(): Promise<ResultType> {\n  try {\n    const result = await someAsyncOperation();\n    return result;\n  } catch (error) {\n    // Handle error appropriately\n    throw new Error('Operation failed');\n  }\n}",
+    "typeDefinitions": "\ninterface BusinessEntity {\n  readonly id: string;\n  readonly createdAt: Date;\n  readonly updatedAt: Date;\n}\n\ntype CreateEntityRequest = Omit<BusinessEntity, 'id' | 'createdAt' | 'updatedAt'>;",
+    "componentStructure": "\ninterface ComponentProps {\n  readonly data: DataType;\n  readonly onAction: (action: ActionType) => void;\n}\n\nexport function Component({ data, onAction }: ComponentProps): JSX.Element {\n  // Implementation\n}",
+    "serviceStructure": "\nexport class BusinessService {\n  constructor(\n    private readonly repository: Repository,\n    private readonly logger: Logger\n  ) {}\n\n  async executeOperation(request: OperationRequest): Promise<OperationResult> {\n    // Implementation\n  }\n}",
+    "testStructure": "\ndescribe('BusinessService', () => {\n  let service: BusinessService;\n  let mockRepository: jest.Mocked<Repository>;\n\n  beforeEach(() => {\n    mockRepository = createMockRepository();\n    service = new BusinessService(mockRepository, logger);\n  });\n\n  describe('executeOperation', () => {\n    it('should execute operation successfully', async () => {\n      // Arrange\n      const request = createTestRequest();\n      const expected = createExpectedResult();\n      mockRepository.save.mockResolvedValue(expected);\n\n      // Act\n      const result = await service.executeOperation(request);\n\n      // Assert\n      expect(result).toEqual(expected);\n      expect(mockRepository.save).toHaveBeenCalledWith(request);\n    });\n  });\n});"
+  },
+  "antiPatterns": {
+    "anyType": "NEVER use \"any\" type - always create specific types",
+    "implicitReturns": "NEVER omit return type annotations",
+    "magicNumbers": "NEVER use magic numbers - define constants",
+    "hardcodedStrings": "NEVER hardcode strings - use constants or config",
+    "deepNesting": "NEVER nest more than 3 levels deep - extract functions"
+  },
+  "templates": {
+    "classDefinition": "\n/**\n * Business entity description\n */\nexport class EntityName {\n  constructor(\n    private readonly dependency: DependencyType\n  ) {}\n\n  async methodName(parameter: ParameterType): Promise<ReturnType> {\n    // Implementation\n  }\n}",
+    "interfaceDefinition": "\n/**\n * Interface description\n */\nexport interface InterfaceName {\n  readonly property: PropertyType;\n  method(parameter: ParameterType): ReturnType;\n}",
+    "functionDefinition": "\n/**\n * Function description\n * @param parameter - Parameter description\n * @returns Return value description\n */\nexport function functionName(parameter: ParameterType): ReturnType {\n  // Implementation\n}",
+    "testDefinition": "\ndescribe('Unit Under Test', () => {\n  describe('method or scenario', () => {\n    it('should behave as expected', () => {\n      // Arrange\n      const input = createTestInput();\n      const expected = createExpectedOutput();\n\n      // Act\n      const actual = unitUnderTest.method(input);\n\n      // Assert\n      expect(actual).toEqual(expected);\n    });\n  });\n});",
+    "componentDefinition": "\ninterface ComponentProps {\n  readonly data: DataType;\n}\n\n/**\n * Component description\n */\nexport function ComponentName({ data }: ComponentProps): JSX.Element {\n  return (\n    <div>\n      {/* Implementation */}\n    </div>\n  );\n}"
+  }
+};
+```

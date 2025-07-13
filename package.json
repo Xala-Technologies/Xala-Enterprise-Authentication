@@ -1,0 +1,61 @@
+{
+  "name": "@xala-technologies/authentication",
+  "version": "1.0.2",
+  "description": "Enterprise authentication with OAuth 2.1, OIDC, SAML, and Norwegian ID",
+  "type": "module",
+  "main": "dist/index-simple.js",
+  "types": "dist/index-simple.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --coverageThreshold='{\"global\":{\"branches\":95,\"functions\":95,\"lines\":95,\"statements\":95}}'",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,json,md}\"",
+    "type-check": "tsc --noEmit --strict",
+    "type-safety-check": "npx enterprise-standards type-safety-report",
+    "test:type-safety": "jest --testNamePattern=\"type.*safety\"",
+    "norwegian-compliance": "npx enterprise-standards validate --norwegian-compliance",
+    "security-scan": "npx enterprise-standards validate --security --object-injection-check",
+    "validate": "pnpm run format && pnpm run lint && pnpm run type-check && pnpm run type-safety-check && pnpm run test",
+    "validate:comprehensive": "pnpm run validate && pnpm run norwegian-compliance && pnpm run security-scan"
+  },
+  "keywords": [
+    "authentication",
+    "enterprise",
+    "norwegian-compliance",
+    "xala-technologies"
+  ],
+  "author": "Xala Technologies",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

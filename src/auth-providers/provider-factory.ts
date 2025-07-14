@@ -4,6 +4,8 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import { Logger } from '@xala-technologies/enterprise-standards';
+
 import type { ProviderConfig } from '../types/index.js';
 
 import { EIDASProvider } from './eidas-provider.js';
@@ -135,7 +137,7 @@ export class ProviderFactory {
 
   private static createEIDASProvider(config: ProviderConfig): EIDASProvider {
     const settings = config.settings ?? {};
-    const { Logger } = require('../mock-foundation.js');
+    // Logger is imported at the top of the file when needed
 
     const eidasConfig = {
       id: config.id,
@@ -177,9 +179,13 @@ export class ProviderFactory {
       callbackUrl: (settings.callbackUrl as string) ?? '/auth/eidas/callback',
     };
 
-    const logger = Logger.create({
+    const logger = new Logger({
       serviceName: 'eidas-provider',
-      nsmClassification: config.nsmClassification ?? 'RESTRICTED',
+      logLevel: 'info',
+      enableConsoleLogging: true,
+      metadata: {
+        nsmClassification: config.nsmClassification ?? 'RESTRICTED',
+      },
     });
 
     return EIDASProvider.create(eidasConfig, logger);

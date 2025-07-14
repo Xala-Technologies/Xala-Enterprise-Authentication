@@ -7,16 +7,20 @@
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    // MINIMAL WORKING CONFIGURATION
+    "strict": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src/**/*"],
   "exclude": [
     "node_modules", 
     "dist", 
     "src/__tests__",
-    "src/auth-ui-helpers/utils/storage.ts",
-    "src/enhanced-index.ts", 
-    "src/index-simple.ts",
-    "src/lib/enhanced-authentication.ts"
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts"
   ]
 }

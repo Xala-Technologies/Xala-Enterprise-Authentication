@@ -2,24 +2,28 @@
  * AuthenticationSpecialistAgent - Domain specialist for authentication
  */
 
-import { Logger } from '../foundation-mock.js';
+import { Logger } from '@xala-technologies/enterprise-standards';
 
 export class AuthenticationSpecialistAgent {
   private readonly logger: Logger;
 
   constructor() {
-    this.logger = Logger.create({
+    this.logger = new Logger({
       serviceName: 'AuthenticationSpecialistAgent',
-      nsmClassification: 'OPEN',
-      gdprCompliant: true,
+      logLevel: 'info',
+      enableConsoleLogging: true,
+      metadata: {
+        nsmClassification: 'OPEN',
+        gdprCompliant: true,
+      },
     });
   }
 
-  async initialize(): Promise<void> {
+  initialize(): void {
     this.logger.info('Initializing AuthenticationSpecialistAgent');
   }
 
-  async analyzeRequirements(_spec: unknown): Promise<unknown> {
+  analyzeRequirements(_spec: unknown): unknown {
     return {
       recommendations: [
         'Use foundation services',

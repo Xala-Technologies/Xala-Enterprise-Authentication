@@ -1,48 +1,37 @@
 /**
- * Main entry point for @xala-technologies/authentication
- * Enterprise Authentication Package v1.0.1
+ * @xala-technologies/authentication v1.0.2
+ * Enterprise Authentication Library with Norwegian Support
+ * Built with Enterprise Standards v6.0.2
+ *
+ * Core authentication functionality - minimal working package
  */
 
-// Core Types
-export type {
-  AuthenticationConfig,
-  NSMClassification,
-  UserProfile,
-  TokenClaims,
-  SessionInfo,
-} from './types/index.js';
+// Core Authentication Components
+export { SessionManager } from './auth-core/session-manager.js';
+export { TokenManager } from './auth-core/token-manager.js';
 
-// Core Services
-export {
-  createAuthenticationService,
-  createTestAuthenticationService,
-  createProductionAuthenticationService,
-} from './lib/core.js';
+// Authentication Providers
+export { NorwegianIDProvider } from './auth-providers/norwegian-id-provider.js';
+export { OAuthProvider } from './auth-providers/oauth-provider.js';
+export { EIDASProvider } from './auth-providers/eidas-provider.js';
+export { ProviderFactory } from './auth-providers/provider-factory.js';
 
-// Auth Core
-export * from './auth-core/index.js';
+// Authentication Middleware
+export { AuthGuard } from './auth-middleware/auth-guard.js';
 
-// Auth Providers
-export * from './auth-providers/index.js';
-
-// Auth Middleware (selective exports to avoid conflicts)
-export {
-  AuthGuard,
-  RoleGuard,
-  NSMClassificationGuard,
-} from './auth-middleware/index.js';
-
-// Auth Permissions
-export * from './auth-permissions/index.js';
-
-// Auth Compliance
-export * from './auth-compliance/index.js';
-
-// Utilities
+// Norwegian Compliance Utilities
 export {
   validateNorwegianPersonalNumber,
   validateNorwegianPhoneNumber,
   checkNSMClassificationAccess,
+  getMostRestrictiveClassification,
 } from './utils/norwegian-compliance.js';
 
-export { isValidUrl, validateRequiredFields } from './utils/type-safety.js';
+// Essential Types
+export type {
+  SessionInfo,
+  UserProfile,
+  NSMClassification,
+  AuthenticationConfig,
+  ProviderConfig
+} from './types/index.js';

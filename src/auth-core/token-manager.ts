@@ -5,7 +5,8 @@
 
 import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 
-import { Logger } from '../foundation-mock.js';
+import { Logger } from '@xala-technologies/enterprise-standards';
+
 import type { UserProfile, TokenClaims } from '../types/index.js';
 
 import type {

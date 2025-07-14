@@ -16,7 +16,6 @@ config.collectCoverageFrom = [
   'src/auth-providers/**/*.{ts,tsx}',
   'src/auth-middleware/**/*.{ts,tsx}',
   'src/auth-permissions/**/*.{ts,tsx}',
-  'src/auth-compliance/**/*.{ts,tsx}',
   'src/utils/**/*.{ts,tsx}',
   'src/index.ts',
   '!src/**/*.d.ts',

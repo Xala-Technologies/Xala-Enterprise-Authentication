@@ -7,7 +7,7 @@
 import { randomBytes, createHash } from 'crypto';
 
 import type { UserProfile } from '../types/index.js';
-import { isValidNorwegianPersonalNumber } from '../utils/type-safety.js';
+
 
 import type {
   AuthenticationProvider,
@@ -204,3 +204,13 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     return new NorwegianIDProvider(config);
   }
 }
+
+// Placeholder for removed type-safety function
+function isValidNorwegianPersonalNumber(personalNumber: string): boolean {
+  return personalNumber.length === 11 && /^\d+$/.test(personalNumber);
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+

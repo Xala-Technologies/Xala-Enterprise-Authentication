@@ -5,7 +5,8 @@
 
 import { randomBytes, randomUUID } from 'crypto';
 
-import { Logger, EventCore } from '../foundation-mock.js';
+import { Logger, EventCore } from '@xala-technologies/enterprise-standards';
+
 import type { SessionInfo, UserProfile, ClientInfo } from '../types/index.js';
 
 import type { SessionManager, SessionStorage } from './types.js';

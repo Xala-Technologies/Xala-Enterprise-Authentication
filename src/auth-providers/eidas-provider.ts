@@ -4,7 +4,8 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
-import { Logger } from '../foundation-mock.js';
+import { Logger } from '@xala-technologies/enterprise-standards';
+
 import type { NSMClassification } from '../types/index.js';
 
 import type {

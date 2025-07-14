@@ -7,7 +7,7 @@
 import { randomBytes, createHash } from 'crypto';
 
 import type { UserProfile } from '../types/index.js';
-import { isValidEmail } from '../utils/type-safety.js';
+
 
 import type {
   AuthenticationProvider,
@@ -261,3 +261,9 @@ interface StateData {
   readonly codeVerifier: string;
   readonly createdAt: Date;
 }
+
+// Placeholder for removed type-safety function
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+

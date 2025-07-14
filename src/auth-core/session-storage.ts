@@ -3,7 +3,8 @@
  * @xala-technologies/authentication
  */
 
-import { Logger } from '../foundation-mock.js';
+import { Logger } from '@xala-technologies/enterprise-standards';
+
 import type { SessionInfo, SessionStorageConfig } from '../types/index.js';
 
 import type { SessionStorageBackend } from './types.js';

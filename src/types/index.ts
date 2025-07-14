@@ -3,11 +3,7 @@
  */
 
 // NSM Classification Type
-export type NSMClassification =
-  | 'OPEN'
-  | 'RESTRICTED'
-  | 'CONFIDENTIAL'
-  | 'SECRET';
+export type NSMClassification = 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
 
 // Base Configuration Types
 export interface NorwegianCompliance {
@@ -48,9 +44,7 @@ export interface SessionStorageConfig {
 export interface AuthenticationService {
   initialize(): Promise<void>;
   getStatus(): Promise<ServiceStatus>;
-  authenticate(
-    credentials: AuthenticationRequest,
-  ): Promise<AuthenticationResult>;
+  authenticate(credentials: AuthenticationRequest): Promise<AuthenticationResult>;
   refresh(refreshToken: string): Promise<AuthenticationResult>;
   logout(sessionId: string): Promise<void>;
   validateSession(sessionId: string): Promise<SessionValidationResult>;

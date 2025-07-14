@@ -11,10 +11,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
   public currentUser: UserProfile | null = null;
   public currentSession: SessionInfo | null = null;
 
-  constructor(
-    user?: UserProfile | undefined,
-    session?: SessionInfo | undefined,
-  ) {
+  constructor(user?: UserProfile | undefined, session?: SessionInfo | undefined) {
     this.currentUser = user ?? null;
     this.currentSession = session ?? null;
   }
@@ -39,9 +36,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
     return this.currentUser.permissions.includes(permission);
   }
 
-  canAccess(
-    nsmLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
-  ): boolean {
+  canAccess(nsmLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET'): boolean {
     if (!this.currentUser) {
       return nsmLevel === 'OPEN';
     }
@@ -50,17 +45,14 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
     const sessionLevel = this.currentSession?.nsmClassification;
 
     // Use the most restrictive classification between user and session
-    const effectiveLevel = this.getMostRestrictiveLevel(
-      userLevel,
-      sessionLevel,
-    );
+    const effectiveLevel = this.getMostRestrictiveLevel(userLevel, sessionLevel);
 
     return this.hasAccessToLevel(effectiveLevel, nsmLevel);
   }
 
   private hasAccessToLevel(
     userLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
-    requiredLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
+    requiredLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET'
   ): boolean {
     const levels = ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'];
     const userLevelIndex = levels.indexOf(userLevel);
@@ -72,7 +64,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
 
   private getMostRestrictiveLevel(
     level1: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
-    level2?: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
+    level2?: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET'
   ): 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET' {
     if (!level2) {
       return level1;
@@ -83,11 +75,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
     const index2 = levels.indexOf(level2);
 
     // Return the level with lower clearance (higher restriction)
-    return levels[Math.min(index1, index2)] as
-      | 'OPEN'
-      | 'RESTRICTED'
-      | 'CONFIDENTIAL'
-      | 'SECRET';
+    return levels[Math.min(index1, index2)] as 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
   }
 
   setUser(user: UserProfile | null): void {
@@ -106,7 +94,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
   clone(): DefaultAuthenticationContext {
     return new DefaultAuthenticationContext(
       this.currentUser ?? undefined,
-      this.currentSession ?? undefined,
+      this.currentSession ?? undefined
     );
   }
 
@@ -124,7 +112,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
 
   static create(
     user?: UserProfile | undefined,
-    session?: SessionInfo | undefined,
+    session?: SessionInfo | undefined
   ): DefaultAuthenticationContext {
     return new DefaultAuthenticationContext(user, session);
   }

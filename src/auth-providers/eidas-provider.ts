@@ -10,8 +10,6 @@ import type { NSMClassification } from '../types/index.js';
 
 import type {
   AuthenticationProvider,
-  AuthenticationRequest,
-  AuthenticationResponse,
   ProviderConfig,
   ProviderMetadata,
   UserProfile,
@@ -116,7 +114,7 @@ export class EIDASProvider implements AuthenticationProvider {
   }
 
   async authenticate(
-    credentials: AuthenticationCredentials,
+    credentials: AuthenticationCredentials
   ): Promise<AuthenticationProviderResult> {
     try {
       // Cast credentials to eIDAS-specific format
@@ -141,8 +139,7 @@ export class EIDASProvider implements AuthenticationProvider {
       }
 
       // Set defaults and validate level of assurance
-      const levelOfAssurance =
-        eidasCredentials.levelOfAssurance || 'substantial';
+      const levelOfAssurance = eidasCredentials.levelOfAssurance || 'substantial';
       if (!this.isValidLevelOfAssurance(levelOfAssurance)) {
         return {
           success: false,
@@ -172,8 +169,7 @@ export class EIDASProvider implements AuthenticationProvider {
           success: false,
           error: {
             code: 'EIDAS_AUTH_FAILED',
-            message:
-              mockResponse.statusMessage || 'eIDAS authentication failed',
+            message: mockResponse.statusMessage || 'eIDAS authentication failed',
             nsmClassification: 'OPEN',
           },
         };
@@ -217,25 +213,16 @@ export class EIDASProvider implements AuthenticationProvider {
       enabled: this.enabled,
       icon: '/icons/eidas.svg',
       description: 'EU eIDAS cross-border authentication',
-      supportedFeatures: [
-        'cross_border_auth',
-        'high_assurance',
-        'saml_sso',
-        'attribute_sharing',
-      ],
+      supportedFeatures: ['cross_border_auth', 'high_assurance', 'saml_sso', 'attribute_sharing'],
       configuration: {
         supportedCountries: Array.from(this.supportedCountries),
         levelOfAssurance: this.config.levelOfAssurance,
-        requestedAttributes: this.config.requestedAttributes.map(
-          (attr) => attr.name,
-        ),
+        requestedAttributes: this.config.requestedAttributes.map((attr) => attr.name),
       },
     };
   }
 
-  async validateCredentials(
-    credentials: AuthenticationCredentials,
-  ): Promise<boolean> {
+  async validateCredentials(credentials: AuthenticationCredentials): Promise<boolean> {
     try {
       const eidasCredentials = credentials as AuthenticationCredentials & {
         countryCode?: string;
@@ -267,9 +254,7 @@ export class EIDASProvider implements AuthenticationProvider {
     }
   }
 
-  async refresh(
-    refreshToken: string,
-  ): Promise<{
+  async refresh(_refreshToken: string): Promise<{
     success: boolean;
     accessToken?: string;
     expiresIn?: number;
@@ -290,7 +275,7 @@ export class EIDASProvider implements AuthenticationProvider {
     // In production, would implement SAML logout
   }
 
-  async getUserProfile(accessToken: string): Promise<UserProfile | null> {
+  async getUserProfile(_accessToken: string): Promise<UserProfile | null> {
     // eIDAS doesn't use access tokens in the traditional sense
     // User profile is obtained during authentication
     this.logger.debug('getUserProfile called for eIDAS provider', {
@@ -305,7 +290,7 @@ export class EIDASProvider implements AuthenticationProvider {
   async generateAuthenticationUrl(
     countryCode: string,
     levelOfAssurance: 'low' | 'substantial' | 'high' = 'substantial',
-    requestedAttributes: string[] = [],
+    requestedAttributes: string[] = []
   ): Promise<string> {
     if (!this.supportedCountries.has(countryCode)) {
       throw new Error(`Unsupported country: ${countryCode}`);
@@ -315,7 +300,7 @@ export class EIDASProvider implements AuthenticationProvider {
     const samlRequest = await this.buildSAMLAuthRequest(
       countryCode,
       levelOfAssurance,
-      requestedAttributes,
+      requestedAttributes
     );
 
     // Encode and build URL
@@ -328,10 +313,7 @@ export class EIDASProvider implements AuthenticationProvider {
   /**
    * Process eIDAS SAML response
    */
-  async processSAMLResponse(
-    samlResponse: string,
-    relayState?: string,
-  ): Promise<EIDASResponse> {
+  async processSAMLResponse(samlResponse: string, relayState?: string): Promise<EIDASResponse> {
     // In production, this would parse and validate the SAML response
     // For now, simulate the response processing
 
@@ -347,14 +329,10 @@ export class EIDASProvider implements AuthenticationProvider {
       country: 'DE', // Germany
       levelOfAssurance: 'substantial',
       attributes: {
-        'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier':
-          'DE/AT/12345678',
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName':
-          'Müller',
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName':
-          'Hans',
-        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth':
-          '1985-03-15',
+        'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier': 'DE/AT/12345678',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName': 'Müller',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName': 'Hans',
+        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth': '1985-03-15',
       },
       personIdentifier: 'DE/AT/12345678',
       statusCode: 'Success',
@@ -370,10 +348,7 @@ export class EIDASProvider implements AuthenticationProvider {
       throw new Error('Service Provider ID is required');
     }
 
-    if (
-      !this.config.signatureCertificate ||
-      !this.config.encryptionCertificate
-    ) {
+    if (!this.config.signatureCertificate || !this.config.encryptionCertificate) {
       throw new Error('Signature and encryption certificates are required');
     }
 
@@ -397,7 +372,7 @@ export class EIDASProvider implements AuthenticationProvider {
   }
 
   private async simulateEIDASAuthentication(
-    request: EIDASAuthenticationRequest,
+    request: EIDASAuthenticationRequest
   ): Promise<EIDASResponse> {
     // Simulate eIDAS authentication flow
     // In production, this would handle the actual SAML exchange
@@ -411,43 +386,32 @@ export class EIDASProvider implements AuthenticationProvider {
       levelOfAssurance: request.levelOfAssurance,
       attributes: {
         'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier': `${request.countryCode}/NO/mock-identifier`,
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName':
-          'MockLastName',
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName':
-          'MockFirstName',
-        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth':
-          '1990-01-01',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName': 'MockLastName',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName': 'MockFirstName',
+        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth': '1990-01-01',
       },
       personIdentifier: `${request.countryCode}/NO/mock-identifier`,
       statusCode: 'Success',
     };
   }
 
-  private async processEIDASResponse(
-    response: EIDASResponse,
-  ): Promise<EIDASUserProfile> {
+  private async processEIDASResponse(response: EIDASResponse): Promise<EIDASUserProfile> {
     const { attributes } = response;
 
     // Extract standard attributes
     const personIdentifier =
-      attributes[
-        'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'
-      ] || response.personIdentifier;
+      attributes['http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'] ||
+      response.personIdentifier;
     const familyName =
-      attributes[
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName'
-      ] || '';
+      attributes['http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName'] || '';
     const givenName =
-      attributes[
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName'
-      ] || '';
-    const dateOfBirth =
-      attributes['http://eidas.europa.eu/attributes/naturalperson/DateOfBirth'];
+      attributes['http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName'] || '';
+    const dateOfBirth = attributes['http://eidas.europa.eu/attributes/naturalperson/DateOfBirth'];
 
     // Determine NSM classification based on level of assurance
     const nsmClassification = this.determineNSMClassification(
       response.levelOfAssurance,
-      response.country,
+      response.country
     );
 
     const userProfile: EIDASUserProfile = {
@@ -475,7 +439,7 @@ export class EIDASProvider implements AuthenticationProvider {
 
   private determineNSMClassification(
     levelOfAssurance: 'low' | 'substantial' | 'high',
-    country: string,
+    country: string
   ): NSMClassification {
     // EU citizens with high assurance get RESTRICTED classification
     if (levelOfAssurance === 'high') {
@@ -531,7 +495,7 @@ export class EIDASProvider implements AuthenticationProvider {
   private async buildSAMLAuthRequest(
     countryCode: string,
     levelOfAssurance: string,
-    requestedAttributes: string[],
+    _requestedAttributes: string[]
   ): Promise<string> {
     // In production, would build proper SAML AuthnRequest XML
     // For now, return mock request

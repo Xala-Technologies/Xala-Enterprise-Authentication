@@ -21,7 +21,7 @@ export class RoleGuard extends AuthGuard implements AuthenticationGuard {
   constructor(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: RoleGuardOptions,
+    options: RoleGuardOptions
   ) {
     super(tokenExtractor, sessionValidator, options);
     this.requiredRoles = options.roles;
@@ -49,7 +49,7 @@ export class RoleGuard extends AuthGuard implements AuthenticationGuard {
   static override create(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: RoleGuardOptions,
+    options: RoleGuardOptions
   ): RoleGuard {
     return new RoleGuard(tokenExtractor, sessionValidator, options);
   }
@@ -60,15 +60,9 @@ export class RoleGuard extends AuthGuard implements AuthenticationGuard {
  */
 export function requireRoles(
   roles: string[],
-  options?: Partial<RoleGuardOptions>,
-): (
-  tokenExtractor: TokenExtractor,
-  sessionValidator: SessionValidator,
-) => RoleGuard {
-  return (
-    tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
-  ): RoleGuard => {
+  options?: Partial<RoleGuardOptions>
+): (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator) => RoleGuard {
+  return (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard => {
     return RoleGuard.create(tokenExtractor, sessionValidator, {
       ...options,
       roles,
@@ -83,10 +77,7 @@ export const RoleGuards = {
   /**
    * Require admin role
    */
-  requireAdmin: (
-    tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
-  ): RoleGuard =>
+  requireAdmin: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['admin'],
       failureMessage: 'Admin access required',
@@ -95,10 +86,7 @@ export const RoleGuards = {
   /**
    * Require user role
    */
-  requireUser: (
-    tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
-  ): RoleGuard =>
+  requireUser: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['user'],
       failureMessage: 'User access required',
@@ -107,10 +95,7 @@ export const RoleGuards = {
   /**
    * Require citizen role (Norwegian government context)
    */
-  requireCitizen: (
-    tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
-  ): RoleGuard =>
+  requireCitizen: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['citizen'],
       failureMessage: 'Citizen access required',
@@ -121,7 +106,7 @@ export const RoleGuards = {
    */
   requireGovernmentEmployee: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['government_employee'],

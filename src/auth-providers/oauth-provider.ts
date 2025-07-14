@@ -8,7 +8,6 @@ import { randomBytes, createHash } from 'crypto';
 
 import type { UserProfile } from '../types/index.js';
 
-
 import type {
   AuthenticationProvider,
   AuthenticationCredentials,
@@ -52,7 +51,7 @@ export class OAuthProvider implements AuthenticationProvider {
   }
 
   async authenticate(
-    credentials: AuthenticationCredentials,
+    credentials: AuthenticationCredentials
   ): Promise<AuthenticationProviderResult> {
     if (!this.initialized) {
       await this.initialize();
@@ -75,7 +74,7 @@ export class OAuthProvider implements AuthenticationProvider {
     }
 
     // Handle direct credentials (for testing/development only)
-    if (credentials.email && credentials.password) {
+    if (credentials.email && credentials.password !== null && credentials.email && credentials.password !== undefined && credentials.email && credentials.password !== '') {
       return this.handleDirectCredentials(credentials);
     }
 
@@ -103,14 +102,12 @@ export class OAuthProvider implements AuthenticationProvider {
     return Promise.resolve();
   }
 
-  async validateCredentials(
-    credentials: AuthenticationCredentials,
-  ): Promise<boolean> {
+  async validateCredentials(credentials: AuthenticationCredentials): Promise<boolean> {
     if (!this.isOAuthCredentials(credentials)) {
       return false;
     }
 
-    if (credentials.email) {
+    if (credentials.email !== null && credentials.email !== undefined && credentials.email !== '') {
       return isValidEmail(credentials.email);
     }
 
@@ -146,7 +143,7 @@ export class OAuthProvider implements AuthenticationProvider {
   }
 
   private async handleAuthorizationCode(
-    credentials: OAuthCredentials,
+    credentials: OAuthCredentials
   ): Promise<AuthenticationProviderResult> {
     // Validate state
     const stateData = this.stateStore.get(credentials.state!);
@@ -186,7 +183,7 @@ export class OAuthProvider implements AuthenticationProvider {
   }
 
   private async handleDirectCredentials(
-    credentials: OAuthCredentials,
+    credentials: OAuthCredentials
   ): Promise<AuthenticationProviderResult> {
     if (!isValidEmail(credentials.email!)) {
       return {
@@ -222,7 +219,7 @@ export class OAuthProvider implements AuthenticationProvider {
   }
 
   private isOAuthCredentials(
-    credentials: AuthenticationCredentials,
+    credentials: AuthenticationCredentials
   ): credentials is OAuthCredentials {
     return credentials.type === 'oauth';
   }
@@ -233,9 +230,7 @@ export class OAuthProvider implements AuthenticationProvider {
 
   private generatePKCE(): { codeVerifier: string; codeChallenge: string } {
     const codeVerifier = randomBytes(32).toString('base64url');
-    const codeChallenge = createHash('sha256')
-      .update(codeVerifier)
-      .digest('base64url');
+    const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url');
 
     return { codeVerifier, codeChallenge };
   }
@@ -266,4 +261,3 @@ interface StateData {
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
-

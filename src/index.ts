@@ -33,5 +33,5 @@ export type {
   UserProfile,
   NSMClassification,
   AuthenticationConfig,
-  ProviderConfig
+  ProviderConfig,
 } from './types/index.js';

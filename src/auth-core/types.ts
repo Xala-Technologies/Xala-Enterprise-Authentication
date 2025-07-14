@@ -44,16 +44,9 @@ export interface TokenRefreshResult {
 }
 
 export interface SessionManager {
-  createSession(
-    user: UserProfile,
-    clientInfo: ClientInfo,
-    provider: string,
-  ): Promise<SessionInfo>;
+  createSession(user: UserProfile, clientInfo: ClientInfo, provider: string): Promise<SessionInfo>;
   getSession(sessionId: string): Promise<SessionInfo | null>;
-  updateSession(
-    sessionId: string,
-    updates: Partial<SessionInfo>,
-  ): Promise<void>;
+  updateSession(sessionId: string, updates: Partial<SessionInfo>): Promise<void>;
   deleteSession(sessionId: string): Promise<void>;
   validateSession(sessionId: string): Promise<boolean>;
   cleanupExpiredSessions(): Promise<void>;
@@ -67,16 +60,11 @@ export interface AuthenticationContext {
   isAuthenticated: boolean;
   hasRole(role: string): boolean;
   hasPermission(permission: string): boolean;
-  canAccess(
-    nsmLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
-  ): boolean;
+  canAccess(nsmLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET'): boolean;
 }
 
 export interface BruteForceProtection {
-  recordFailedAttempt(
-    identifier: string,
-    clientInfo: ClientInfo,
-  ): Promise<void>;
+  recordFailedAttempt(identifier: string, clientInfo: ClientInfo): Promise<void>;
   recordSuccessfulAttempt(identifier: string): Promise<void>;
   isBlocked(identifier: string): Promise<boolean>;
   getBlockDuration(identifier: string): Promise<number>;

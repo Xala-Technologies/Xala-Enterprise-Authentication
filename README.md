@@ -12,6 +12,7 @@
 This authentication library is **production-ready** with Enterprise Standards v6.0.2 compliance. The package follows **Option 1: Minimal Compliance** approach - focusing on core authentication functionality while providing essential Norwegian market support.
 
 ### ✨ **Key Features**
+
 - **Core Authentication**: Session management, token handling, user authentication
 - **Norwegian ID Providers**: BankID, Buypass, Commfides integration ready
 - **NSM Classification**: Basic Norwegian security level support
@@ -38,6 +39,7 @@ yarn add @xala-technologies/authentication
 ## 🏗️ **Architecture Overview**
 
 ### **Focused Package Structure**
+
 ```
 @xala-technologies/authentication/
 ├── auth-core/              # Session and token management
@@ -50,25 +52,30 @@ yarn add @xala-technologies/authentication
 ```
 
 ### **What's Included**
+
 ✅ **Core Authentication Features**
+
 - Session management with automatic renewal
 - JWT token handling with secure storage
 - User profile management
 - Authentication state management
 
 ✅ **Norwegian Market Support**
+
 - Personal number validation (Modulo 11)
 - Phone number format validation
 - NSM security classification levels
 - BankID/Buypass/Commfides provider setup
 
 ✅ **Enterprise Features**
+
 - Role-based access control (RBAC)
 - Permission-based route guards
 - Authentication middleware
 - React authentication components
 
 ### **What's Removed** (Available in Separate Packages)
+
 ❌ Heavy GDPR automation workflows
 ❌ Complex compliance reporting systems
 ❌ Automated audit trail management
@@ -84,27 +91,27 @@ yarn add @xala-technologies/authentication
 import {
   createAuthenticationService,
   SessionManager,
-  TokenManager
+  TokenManager,
 } from '@xala-technologies/authentication';
 
 // Initialize authentication service
 const authService = createAuthenticationService({
   sessionTimeout: 30 * 60 * 1000, // 30 minutes
   enableTokenRefresh: true,
-  nsmClassification: 'CONFIDENTIAL'
+  nsmClassification: 'CONFIDENTIAL',
 });
 
 // Session management
 const sessionManager = new SessionManager({
   timeout: 30 * 60 * 1000,
-  storageType: 'secure'
+  storageType: 'secure',
 });
 
 // Token management
 const tokenManager = new TokenManager({
   issuer: 'your-app',
   audience: 'your-audience',
-  enableJWKS: true
+  enableJWKS: true,
 });
 ```
 
@@ -120,8 +127,8 @@ const bankIdProvider = ProviderFactory.createNorwegianProvider({
     clientId: 'your-bankid-client-id',
     clientSecret: 'your-bankid-secret',
     discoveryUrl: 'https://bankid.api.url',
-    merchantName: 'Your Company'
-  }
+    merchantName: 'Your Company',
+  },
 });
 
 // Buypass configuration
@@ -130,8 +137,8 @@ const buypassProvider = ProviderFactory.createNorwegianProvider({
   config: {
     clientId: 'your-buypass-client-id',
     clientSecret: 'your-buypass-secret',
-    discoveryUrl: 'https://buypass.api.url'
-  }
+    discoveryUrl: 'https://buypass.api.url',
+  },
 });
 ```
 
@@ -142,7 +149,7 @@ import {
   AuthProvider,
   useAuth,
   ProtectedRoute,
-  LoginForm
+  LoginForm,
 } from '@xala-technologies/authentication';
 
 // App wrapper
@@ -152,13 +159,13 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginForm />} />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </Router>
@@ -169,7 +176,7 @@ function App() {
 // Using authentication hook
 function Dashboard() {
   const { user, logout, hasRole } = useAuth();
-  
+
   return (
     <div>
       <h1>Welcome, {user?.name}</h1>
@@ -185,6 +192,7 @@ function Dashboard() {
 ## 🇳🇴 **Norwegian Market Features**
 
 ### **Personal Number Validation**
+
 ```typescript
 import { validateNorwegianPersonalNumber } from '@xala-technologies/authentication';
 
@@ -194,10 +202,11 @@ console.log(isValid); // true/false based on Modulo 11 algorithm
 ```
 
 ### **NSM Classification Support**
+
 ```typescript
-import { 
-  NSMClassificationLevels, 
-  validateNSMClassification 
+import {
+  NSMClassificationLevels,
+  validateNSMClassification
 } from '@xala-technologies/authentication';
 
 // Check classification access
@@ -208,6 +217,7 @@ const hasAccess = validateNSMClassification(
 ```
 
 ### **Phone Number Validation**
+
 ```typescript
 import { validateNorwegianPhoneNumber } from '@xala-technologies/authentication';
 
@@ -221,6 +231,7 @@ console.log(isValidPhone); // true for valid Norwegian mobile numbers
 ## 🛡️ **Security Features**
 
 ### **Authentication Guards**
+
 ```typescript
 import { AuthGuard, RoleGuard, NSMClassificationGuard } from '@xala-technologies/authentication';
 
@@ -235,6 +246,7 @@ app.use('/api/classified', NSMClassificationGuard('CONFIDENTIAL'));
 ```
 
 ### **Permission System**
+
 ```typescript
 import { PermissionManager, RBACService } from '@xala-technologies/authentication';
 
@@ -280,6 +292,7 @@ This package follows **Enterprise Standards v6.0.2**:
 - ✅ **Security**: Enterprise-grade security linting
 
 ### **Configuration Extensions**
+
 - `@xala-technologies/enterprise-standards/configs/typescript/base.json`
 - `@xala-technologies/enterprise-standards/configs/eslint/base.cjs`
 - Enterprise Jest and Prettier configurations
@@ -291,18 +304,21 @@ This package follows **Enterprise Standards v6.0.2**:
 If you were using the full compliance version, here's what changed:
 
 ### **Removed Components**
+
 - `auth-compliance/` directory (moved to separate packages)
 - Heavy GDPR automation workflows
 - Complex compliance reporting systems
 - Automated audit trail management
 
 ### **Retained Essential Features**
+
 - Basic NSM classification support
 - Norwegian personal number validation
 - Core authentication functionality
 - Norwegian ID provider integration
 
 ### **Separate Packages Available**
+
 - `@xala/gdpr-compliance` - GDPR automation and management
 - `@xala/audit-trail` - Comprehensive audit logging
 - `@xala/nsm-compliance` - Advanced NSM workflow automation
@@ -336,6 +352,7 @@ Private package for Xala Technologies enterprise use.
 ## 📞 **Support**
 
 For enterprise support and questions:
+
 - Enterprise Standards: [Enterprise Standards Package](https://github.com/xala-technologies/enterprise-standards)
 - Internal Documentation: Available in enterprise workspace
 - Technical Support: Contact enterprise development team

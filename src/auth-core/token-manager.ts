@@ -9,11 +9,7 @@ import { Logger } from '@xala-technologies/enterprise-standards';
 
 import type { UserProfile, TokenClaims } from '../types/index.js';
 
-import type {
-  TokenManager,
-  TokenValidationResult,
-  TokenRefreshResult,
-} from './types.js';
+import type { TokenManager, TokenValidationResult, TokenRefreshResult } from './types.js';
 
 export class DefaultTokenManager implements TokenManager {
   private readonly accessTokenSecret: string;
@@ -43,10 +39,7 @@ export class DefaultTokenManager implements TokenManager {
     this.logger = options.logger;
   }
 
-  async generateAccessToken(
-    user: UserProfile,
-    sessionId: string,
-  ): Promise<string> {
+  async generateAccessToken(user: UserProfile, sessionId: string): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + Math.floor(this.accessTokenLifetime / 1000);
     const jti = randomBytes(16).toString('hex');
@@ -77,13 +70,10 @@ export class DefaultTokenManager implements TokenManager {
       nsmClassification: user.nsmClassification,
     });
 
-    return token;
+    return Promise.resolve(token);
   }
 
-  async generateRefreshToken(
-    user: UserProfile,
-    sessionId: string,
-  ): Promise<string> {
+  async generateRefreshToken(user: UserProfile, sessionId: string): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + Math.floor(this.refreshTokenLifetime / 1000);
     const jti = randomBytes(16).toString('hex');
@@ -113,7 +103,7 @@ export class DefaultTokenManager implements TokenManager {
       expiresAt: new Date(exp * 1000),
     });
 
-    return token;
+    return Promise.resolve(token);
   }
 
   async validateToken(token: string): Promise<TokenValidationResult> {
@@ -210,10 +200,7 @@ export class DefaultTokenManager implements TokenManager {
         metadata: {},
       };
 
-      const newAccessToken = await this.generateAccessToken(
-        user,
-        claims.sessionId,
-      );
+      const newAccessToken = await this.generateAccessToken(user, claims.sessionId);
       const expiresIn = Math.floor(this.accessTokenLifetime / 1000);
 
       this.logger.debug('Access token refreshed', {
@@ -244,7 +231,7 @@ export class DefaultTokenManager implements TokenManager {
     // For now, we store in memory
 
     this.logger.info('Token revoked', {
-      tokenPrefix: `${token.substring(0, 10) }...`,
+      tokenPrefix: `${token.substring(0, 10)}...`,
     });
   }
 
@@ -275,17 +262,11 @@ export class DefaultTokenManager implements TokenManager {
       typ: 'JWT',
     };
 
-    const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
-      'base64url',
-    );
-    const encodedPayload = Buffer.from(JSON.stringify(claims)).toString(
-      'base64url',
-    );
+    const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+    const encodedPayload = Buffer.from(JSON.stringify(claims)).toString('base64url');
 
     const data = `${encodedHeader}.${encodedPayload}`;
-    const signature = createHmac('sha256', secret)
-      .update(data)
-      .digest('base64url');
+    const signature = createHmac('sha256', secret).update(data).digest('base64url');
 
     return `${data}.${signature}`;
   }
@@ -299,9 +280,7 @@ export class DefaultTokenManager implements TokenManager {
 
       const [encodedHeader, encodedPayload, providedSignature] = parts;
       const data = `${encodedHeader}.${encodedPayload}`;
-      const expectedSignature = createHmac('sha256', secret)
-        .update(data)
-        .digest('base64url');
+      const expectedSignature = createHmac('sha256', secret).update(data).digest('base64url');
 
       // Timing-safe comparison
       if (!providedSignature || !expectedSignature) {

@@ -20,9 +20,7 @@ export interface AuthenticationProvider {
   readonly supportedLanguages: readonly string[];
 
   initialize(): Promise<void>;
-  authenticate(
-    credentials: AuthenticationCredentials,
-  ): Promise<AuthenticationProviderResult>;
+  authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationProviderResult>;
   refresh(refreshToken: string): Promise<RefreshResult>;
   logout(sessionId: string): Promise<void>;
   validateCredentials(credentials: AuthenticationCredentials): Promise<boolean>;
@@ -193,7 +191,5 @@ export interface ProviderRegistry {
   getProvider(providerId: string): AuthenticationProvider | null;
   getAllProviders(): readonly AuthenticationProvider[];
   getEnabledProviders(): readonly AuthenticationProvider[];
-  getProvidersByType(
-    type: AuthenticationProvider['type'],
-  ): readonly AuthenticationProvider[];
+  getProvidersByType(type: AuthenticationProvider['type']): readonly AuthenticationProvider[];
 }

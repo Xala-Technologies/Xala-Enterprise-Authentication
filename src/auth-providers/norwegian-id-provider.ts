@@ -8,7 +8,6 @@ import { randomBytes, createHash } from 'crypto';
 
 import type { UserProfile } from '../types/index.js';
 
-
 import type {
   AuthenticationProvider,
   AuthenticationCredentials,
@@ -43,11 +42,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     }
 
     // Validate configuration
-    if (
-      !this.config.bankIdConfig &&
-      !this.config.buypassConfig &&
-      !this.config.commfidesConfig
-    ) {
+    if (!this.config.bankIdConfig && !this.config.buypassConfig && !this.config.commfidesConfig) {
       throw new Error('At least one Norwegian ID provider must be configured');
     }
 
@@ -61,7 +56,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
   }
 
   async authenticate(
-    credentials: AuthenticationCredentials,
+    credentials: AuthenticationCredentials
   ): Promise<AuthenticationProviderResult> {
     if (!this.initialized) {
       await this.initialize();
@@ -109,11 +104,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
         nsmClassification: 'RESTRICTED',
         metadata: {
           provider: this.id,
-          authMethod: credentials.bankId
-            ? 'bankid'
-            : credentials.buypass
-              ? 'buypass'
-              : 'commfides',
+          authMethod: credentials.bankId ? 'bankid' : credentials.buypass ? 'buypass' : 'commfides',
           authLevel: 4, // Norwegian authentication level
         },
       };
@@ -154,9 +145,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     return Promise.resolve();
   }
 
-  async validateCredentials(
-    credentials: AuthenticationCredentials,
-  ): Promise<boolean> {
+  async validateCredentials(credentials: AuthenticationCredentials): Promise<boolean> {
     if (!this.isNorwegianIDCredentials(credentials)) {
       return false;
     }
@@ -171,7 +160,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
   }
 
   private isNorwegianIDCredentials(
-    credentials: AuthenticationCredentials,
+    credentials: AuthenticationCredentials
   ): credentials is NorwegianIDCredentials {
     return (
       credentials.type === 'norwegian-id' &&
@@ -210,7 +199,4 @@ function isValidNorwegianPersonalNumber(personalNumber: string): boolean {
   return personalNumber.length === 11 && /^\d+$/.test(personalNumber);
 }
 
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 

@@ -36,20 +36,9 @@ export interface Role {
  * Permission condition
  */
 export interface PermissionCondition {
-  readonly type:
-    | 'ownership'
-    | 'time'
-    | 'location'
-    | 'classification'
-    | 'custom';
+  readonly type: 'ownership' | 'time' | 'location' | 'classification' | 'custom';
   readonly field?: string;
-  readonly operator:
-    | 'equals'
-    | 'not_equals'
-    | 'in'
-    | 'not_in'
-    | 'greater_than'
-    | 'less_than';
+  readonly operator: 'equals' | 'not_equals' | 'in' | 'not_in' | 'greater_than' | 'less_than';
   readonly value: unknown;
 }
 
@@ -101,9 +90,7 @@ export interface RoleManager {
   getRole(id: string): Promise<Role | null>;
   getRolesByPermission(permissionId: string): Promise<readonly Role[]>;
   getAllRoles(): Promise<readonly Role[]>;
-  getEffectivePermissions(
-    roleIds: readonly string[],
-  ): Promise<readonly string[]>;
+  getEffectivePermissions(roleIds: readonly string[]): Promise<readonly string[]>;
 }
 
 /**

@@ -45,10 +45,11 @@ export class MemorySessionStorage implements SessionStorageBackend {
     this.userSessions.clear();
 
     this.logger.info('Memory session storage disconnected');
+    return Promise.resolve();
   }
 
   async health(): Promise<boolean> {
-    return true; // Memory storage is always healthy
+    return Promise.resolve(true); // Memory storage is always healthy
   }
 
   async get(sessionId: string): Promise<SessionInfo | null> {
@@ -102,6 +103,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
         userId: session.userId,
       });
     }
+    return Promise.resolve();
   }
 
   async exists(sessionId: string): Promise<boolean> {
@@ -166,10 +168,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
 // For now, we'll focus on the memory implementation
 
 export class SessionStorageFactory {
-  static create(
-    type: 'memory' | 'redis' | 'database',
-    logger: Logger,
-  ): SessionStorageBackend {
+  static create(type: 'memory' | 'redis' | 'database', logger: Logger): SessionStorageBackend {
     switch (type) {
       case 'memory':
         return MemorySessionStorage.create(logger);

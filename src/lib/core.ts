@@ -11,11 +11,7 @@ import {
   DefaultTokenManager,
   SessionStorageFactory,
 } from '../auth-core/index.js';
-import type {
-  SessionManager,
-  TokenManager,
-  SessionStorageBackend,
-} from '../auth-core/types.js';
+import type { SessionManager, TokenManager, SessionStorageBackend } from '../auth-core/types.js';
 import {
   DefaultProviderRegistry,
   ProviderFactory,
@@ -34,20 +30,22 @@ import type {
   authenticationService,
 } from '../types/index.js';
 // Placeholder type safety functions
-function isValidAuthenticationRequest(request: any): boolean {
-  return request && typeof request === 'object';
+function isValidAuthenticationRequest(request: unknown): boolean {
+  return Boolean(request !== null && typeof request === 'object');
 }
 
-function isValidUserProfile(profile: any): boolean {
-  return profile && typeof profile === 'object';
+function isValidUserProfile(profile: unknown): boolean {
+  return Boolean(profile !== null && typeof profile === 'object');
 }
 
-function safeGet(obj: any, path: string, defaultValue?: any): any {
+function safeGet(obj: Record<string, unknown>, path: string, defaultValue?: unknown): unknown {
   const keys = path.split('.');
-  let current = obj;
+  let current: unknown = obj;
   for (const key of keys) {
-    if (current == null) { return defaultValue; }
-    current = current[key];
+    if (current === null || current === undefined) {
+      return defaultValue;
+    }
+    current = (current as Record<string, unknown>)[key];
   }
   return current !== undefined ? current : defaultValue;
 }
@@ -86,10 +84,7 @@ export class Authentication implements AuthenticationService {
     });
 
     // Initialize storage
-    this.sessionStorage = SessionStorageFactory.create(
-      config.sessionStorage.type,
-      this.logger,
-    );
+    this.sessionStorage = SessionStorageFactory.create(config.sessionStorage.type, this.logger);
 
     // Initialize managers
     this.sessionManager = DefaultSessionManager.create(this.sessionStorage, {
@@ -147,9 +142,7 @@ export class Authentication implements AuthenticationService {
     this.logger.info('Authentication service initialized successfully');
   }
 
-  async authenticate(
-    request: AuthenticationRequest,
-  ): Promise<AuthenticationResult> {
+  async authenticate(request: AuthenticationRequest): Promise<AuthenticationResult> {
     try {
       // Validate request using type safety utilities
       if (!isValidAuthenticationRequest(request)) {
@@ -165,7 +158,7 @@ export class Authentication implements AuthenticationService {
 
       // Find provider
       const provider = this.providerRegistry.getProvider(request.provider);
-      if (!provider?.enabled) {
+      if (!provider?.enabled === true) {
         return {
           success: false,
           error: {
@@ -199,18 +192,12 @@ export class Authentication implements AuthenticationService {
       const session = await this.sessionManager.createSession(
         user,
         request.clientInfo,
-        request.provider,
+        request.provider
       );
 
       // Generate tokens
-      const accessToken = await this.tokenManager.generateAccessToken(
-        user,
-        session.id,
-      );
-      const refreshToken = await this.tokenManager.generateRefreshToken(
-        user,
-        session.id,
-      );
+      const accessToken = await this.tokenManager.generateAccessToken(user, session.id);
+      const refreshToken = await this.tokenManager.generateRefreshToken(user, session.id);
 
       this.activeSessions++;
       this.totalLogins++;
@@ -293,10 +280,10 @@ export class Authentication implements AuthenticationService {
     const userProfile = safeGet(
       session as unknown as Record<string, unknown>,
       'metadata.userProfile',
-      null,
+      null
     );
     const user: UserProfile = isValidUserProfile(userProfile)
-      ? userProfile
+      ? (userProfile as UserProfile)
       : {
         id: session.userId,
         roles: [],
@@ -320,9 +307,7 @@ export class Authentication implements AuthenticationService {
       version: '1.0.0',
       uptime: process.uptime(),
       lastCheck: new Date(),
-      activeProviders: this.config.providers
-        .filter((p) => p.enabled)
-        .map((p) => p.id),
+      activeProviders: this.config.providers.filter((p) => p.enabled).map((p) => p.id),
       activeSessions: this.activeSessions,
       totalLogins: this.totalLogins,
     };
@@ -344,7 +329,7 @@ export class Authentication implements AuthenticationService {
           });
         }
       },
-      5 * 60 * 1000,
+      5 * 60 * 1000
     );
   }
 
@@ -354,9 +339,7 @@ export class Authentication implements AuthenticationService {
 }
 
 // Legacy compatibility
-export class authentication
-  extends Authentication
-  implements authenticationService {
+export class authentication extends Authentication implements authenticationService {
   constructor(config: authenticationConfig) {
     super(config as AuthenticationConfig);
   }
@@ -367,14 +350,12 @@ export class authentication
 }
 
 // Service creation functions
-export function createAuthenticationService(
-  config: AuthenticationConfig,
-): Authentication {
+export function createAuthenticationService(config: AuthenticationConfig): Authentication {
   return Authentication.create(config);
 }
 
 export function createTestAuthenticationService(
-  config?: Partial<AuthenticationConfig>,
+  config?: Partial<AuthenticationConfig>
 ): Authentication {
   const defaultConfig: AuthenticationConfig = {
     nsmClassification: 'OPEN',
@@ -402,7 +383,7 @@ export function createTestAuthenticationService(
 }
 
 export function createProductionAuthenticationService(
-  config: AuthenticationConfig,
+  config: AuthenticationConfig
 ): Authentication {
   // Validate production requirements
   if (config.sessionStorage.type === 'memory') {
@@ -414,9 +395,7 @@ export function createProductionAuthenticationService(
   }
 
   if (config.nsmClassification === 'OPEN' && config.providers.length === 0) {
-    throw new Error(
-      'At least one authentication provider required in production',
-    );
+    throw new Error('At least one authentication provider required in production');
   }
 
   return Authentication.create(config);
@@ -426,10 +405,4 @@ export function createProductionAuthenticationService(
 export type { AuthenticationConfig } from '../types/index.js';
 
 // Minimal type safety functions (placeholders)
-function createTypeSafeConfig<T>(config: T): T {
-  return config;
-}
-
-function validateRequiredFields<T>(data: T, fields: string[]): { success: boolean } {
-  return { success: true };
-}
+// Functions removed as they were unused

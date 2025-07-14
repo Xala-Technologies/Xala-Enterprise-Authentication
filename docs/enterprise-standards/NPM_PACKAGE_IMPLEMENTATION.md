@@ -7,6 +7,7 @@ This guide provides the complete implementation for Enterprise Standards v6.0.2 
 ## 🎯 **What's New in v6.0.2**
 
 ### **🏆 Production Quality Achieved**
+
 - **✅ Zero ESLint Errors**: Complete codebase validation with 0 errors, 0 warnings
 - **✅ Full Type Safety**: Strict TypeScript compliance with no `any` types
 - **✅ Security Compliance**: All security linting rules passing
@@ -14,6 +15,7 @@ This guide provides the complete implementation for Enterprise Standards v6.0.2 
 - **✅ Comprehensive Testing**: 100+ test cases for all core components
 
 ### **🚀 Simplified & Focused Architecture**
+
 - **Self-Contained Package**: No external foundation dependencies
 - **Configuration Only**: Focused purely on ESLint, TypeScript, Jest, and Prettier configs
 - **70% Performance Improvement**: Faster startup and reduced memory usage
@@ -21,6 +23,7 @@ This guide provides the complete implementation for Enterprise Standards v6.0.2 
 - **Clean Separation**: Compliance moved to separate packages
 
 ### **🔧 Core Functionality**
+
 - **ESLint Configurations**: Enterprise security rules and best practices
 - **TypeScript Configurations**: Strict TypeScript setups for all platforms
 - **Jest Testing**: Enterprise-grade testing configurations
@@ -28,6 +31,7 @@ This guide provides the complete implementation for Enterprise Standards v6.0.2 
 - **CLI Tool**: Simple command-line interface for configuration generation
 
 ### **🌍 International Standard**
+
 - **Single Compliance Type**: International enterprise standards only
 - **Basic Security**: Essential security rules and audit logging
 - **No Complex Dependencies**: Removed over-engineered compliance services
@@ -64,23 +68,25 @@ npx enterprise-standards generate --platform nestjs --path ./backend
 ### 3. Manual Configuration Setup
 
 **ESLint Configuration (.eslintrc.js)**:
+
 ```javascript
 module.exports = {
-  "extends": [
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs",
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/platforms/nextjs.cjs"
+  extends: [
+    './node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs',
+    './node_modules/@xala-technologies/enterprise-standards/configs/eslint/platforms/nextjs.cjs',
   ],
-  "parserOptions": {
-    "project": "./tsconfig.json"
+  parserOptions: {
+    project: './tsconfig.json',
   },
-  "rules": {
-    "security/detect-object-injection": "error",
-    "security/detect-non-literal-fs-filename": "error"
-  }
+  rules: {
+    'security/detect-object-injection': 'error',
+    'security/detect-non-literal-fs-filename': 'error',
+  },
 };
 ```
 
 **TypeScript Configuration (tsconfig.json)**:
+
 ```json
 {
   "extends": "./node_modules/@xala-technologies/enterprise-standards/configs/typescript/platforms/nextjs.json",
@@ -96,16 +102,18 @@ module.exports = {
 ```
 
 **Jest Configuration (jest.config.js)**:
+
 ```javascript
 module.exports = {
   ...require('@xala-technologies/enterprise-standards/configs/jest/base.cjs'),
   moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  }
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 };
 ```
 
 **Prettier Configuration (.prettierrc)**:
+
 ```json
 {
   "semi": true,
@@ -121,6 +129,7 @@ module.exports = {
 Enterprise Standards v6.0.2 includes production-ready foundation components:
 
 ### Logger
+
 ```typescript
 import { Logger } from '@xala-technologies/enterprise-standards';
 
@@ -128,27 +137,28 @@ const logger = Logger.create({
   serviceName: 'my-service',
   logLevel: 'info',
   enableConsoleLogging: true,
-  enableFileLogging: false
+  enableFileLogging: false,
 });
 
 logger.info('Service started');
 logger.error('Error occurred', new Error('Something went wrong'));
-logger.audit({ 
-  action: 'user-login', 
-  userId: '123', 
-  resourceId: 'app', 
-  complianceLevel: 'INTERNAL' 
+logger.audit({
+  action: 'user-login',
+  userId: '123',
+  resourceId: 'app',
+  complianceLevel: 'INTERNAL',
 });
 ```
 
 ### EventCore
+
 ```typescript
 import { EventCore } from '@xala-technologies/enterprise-standards';
 
 const eventCore = EventCore.create({
   serviceName: 'my-events',
   enablePerformanceMonitoring: true,
-  enableEventHistory: true
+  enableEventHistory: true,
 });
 
 // Subscribe to events
@@ -166,32 +176,38 @@ eventCore.once('system-shutdown', () => {
 ```
 
 ### DIContainer
+
 ```typescript
 import { DIContainer } from '@xala-technologies/enterprise-standards';
 
 const container = DIContainer.create({
   enableDebug: true,
-  defaultLifecycle: 'singleton'
+  defaultLifecycle: 'singleton',
 });
 
 // Register services
 container.register('database', () => new DatabaseService(), {
-  lifecycle: 'singleton'
+  lifecycle: 'singleton',
 });
 
-container.register('userService', (container) => {
-  const db = container.resolve('database');
-  return new UserService(db);
-}, {
-  lifecycle: 'transient',
-  dependencies: ['database']
-});
+container.register(
+  'userService',
+  (container) => {
+    const db = container.resolve('database');
+    return new UserService(db);
+  },
+  {
+    lifecycle: 'transient',
+    dependencies: ['database'],
+  }
+);
 
 // Resolve services
 const userService = await container.resolve('userService');
 ```
 
 ### All-in-One Setup
+
 ```typescript
 import { createCoreServices } from '@xala-technologies/enterprise-standards';
 
@@ -199,7 +215,7 @@ const { logger, eventCore, diContainer, configLoader } = await createCoreService
   serviceName: 'my-app',
   logLevel: 'info',
   enableEventHistory: true,
-  enableDIDebug: false
+  enableDIDebug: false,
 });
 
 // All services are now available and configured
@@ -217,7 +233,7 @@ import { createEnterpriseConfig } from '@xala-technologies/enterprise-standards'
 const config = await createEnterpriseConfig({
   platform: 'nextjs',
   environment: 'production',
-  verbose: true
+  verbose: true,
 });
 
 await config.generateConfig('./my-project');
@@ -226,11 +242,11 @@ await config.generateConfig('./my-project');
 ### Individual Configuration Access
 
 ```typescript
-import { 
-  getESLintConfig, 
-  getTypeScriptConfig, 
-  getJestConfig, 
-  getPrettierConfig 
+import {
+  getESLintConfig,
+  getTypeScriptConfig,
+  getJestConfig,
+  getPrettierConfig,
 } from '@xala-technologies/enterprise-standards';
 
 const eslintConfig = await getESLintConfig('nextjs');
@@ -242,7 +258,11 @@ const prettierConfig = await getPrettierConfig();
 ### Advanced Usage
 
 ```typescript
-import { EnterpriseStandards, ConfigurationLoader, FileService } from '@xala-technologies/enterprise-standards';
+import {
+  EnterpriseStandards,
+  ConfigurationLoader,
+  FileService,
+} from '@xala-technologies/enterprise-standards';
 
 const configLoader = new ConfigurationLoader();
 const fileService = new FileService();
@@ -250,13 +270,13 @@ const fileService = new FileService();
 const standards = new EnterpriseStandards(configLoader, fileService, {
   platform: 'nestjs',
   environment: 'development',
-  complianceType: 'international'
+  complianceType: 'international',
 });
 
 await standards.generateConfig('./backend', {
   overwrite: true,
   backup: true,
-  showProgress: true
+  showProgress: true,
 });
 ```
 
@@ -268,12 +288,12 @@ await standards.generateConfig('./backend', {
 // .eslintrc.js for Next.js
 module.exports = {
   extends: [
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs",
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/platforms/nextjs.cjs"
+    './node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs',
+    './node_modules/@xala-technologies/enterprise-standards/configs/eslint/platforms/nextjs.cjs',
   ],
   parserOptions: {
-    project: './tsconfig.json'
-  }
+    project: './tsconfig.json',
+  },
 };
 ```
 
@@ -296,12 +316,12 @@ module.exports = {
 // .eslintrc.js for NestJS
 module.exports = {
   extends: [
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs",
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/platforms/nestjs.cjs"
+    './node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs',
+    './node_modules/@xala-technologies/enterprise-standards/configs/eslint/platforms/nestjs.cjs',
   ],
   parserOptions: {
-    project: './tsconfig.json'
-  }
+    project: './tsconfig.json',
+  },
 };
 ```
 
@@ -323,12 +343,10 @@ module.exports = {
 ```javascript
 // .eslintrc.js for Libraries
 module.exports = {
-  extends: [
-    "./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs"
-  ],
+  extends: ['./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs'],
   parserOptions: {
-    project: './tsconfig.json'
-  }
+    project: './tsconfig.json',
+  },
 };
 ```
 
@@ -345,18 +363,18 @@ module.exports = {
 
 ## 📋 **Available Configurations**
 
-| Type | Path | Description | Platform Support |
-|------|------|-------------|-------------------|
-| **ESLint Base** | `configs/eslint/base.cjs` | Core TypeScript + Security rules | All platforms |
-| **ESLint Next.js** | `configs/eslint/platforms/nextjs.cjs` | Next.js specific rules | Next.js |
-| **ESLint NestJS** | `configs/eslint/platforms/nestjs.cjs` | NestJS specific rules | NestJS |
-| **TypeScript Base** | `configs/typescript/base.json` | Strict TypeScript configuration | All platforms |
-| **TypeScript Next.js** | `configs/typescript/platforms/nextjs.json` | Next.js TypeScript setup | Next.js |
-| **TypeScript NestJS** | `configs/typescript/platforms/nestjs.json` | NestJS TypeScript setup | NestJS |
-| **Jest Base** | `configs/jest/base.cjs` | Core Jest configuration | All platforms |
-| **Jest Next.js** | `configs/jest/nextjs.js.cjs` | Next.js Jest setup | Next.js |
-| **Jest NestJS** | `configs/jest/nestjs.js.cjs` | NestJS Jest setup | NestJS |
-| **Prettier Base** | `configs/prettier/base.cjs` | Standard formatting rules | All platforms |
+| Type                   | Path                                       | Description                      | Platform Support |
+| ---------------------- | ------------------------------------------ | -------------------------------- | ---------------- |
+| **ESLint Base**        | `configs/eslint/base.cjs`                  | Core TypeScript + Security rules | All platforms    |
+| **ESLint Next.js**     | `configs/eslint/platforms/nextjs.cjs`      | Next.js specific rules           | Next.js          |
+| **ESLint NestJS**      | `configs/eslint/platforms/nestjs.cjs`      | NestJS specific rules            | NestJS           |
+| **TypeScript Base**    | `configs/typescript/base.json`             | Strict TypeScript configuration  | All platforms    |
+| **TypeScript Next.js** | `configs/typescript/platforms/nextjs.json` | Next.js TypeScript setup         | Next.js          |
+| **TypeScript NestJS**  | `configs/typescript/platforms/nestjs.json` | NestJS TypeScript setup          | NestJS           |
+| **Jest Base**          | `configs/jest/base.cjs`                    | Core Jest configuration          | All platforms    |
+| **Jest Next.js**       | `configs/jest/nextjs.js.cjs`               | Next.js Jest setup               | Next.js          |
+| **Jest NestJS**        | `configs/jest/nestjs.js.cjs`               | NestJS Jest setup                | NestJS           |
+| **Prettier Base**      | `configs/prettier/base.cjs`                | Standard formatting rules        | All platforms    |
 
 ## 🔧 **CLI Usage**
 
@@ -452,30 +470,35 @@ npm install --save-dev @xala-technologies/security-compliance
 ### Migration Steps
 
 1. **Update package version:**
+
    ```bash
    npm install --save-dev @xala-technologies/enterprise-standards@6.0.1
    ```
 
 2. **Remove foundation dependency (if present):**
+
    ```bash
    npm uninstall @xala-technologies/foundation
    ```
 
 3. **Regenerate configurations:**
+
    ```bash
    npx enterprise-standards generate --platform <your-platform>
    ```
 
 4. **For GDPR compliance:**
+
    ```bash
    npm install --save-dev @xala-technologies/gdpr-compliance
    ```
 
 5. **Update imports (if using programmatic API):**
+
    ```typescript
    // Before v6.0.1
    import { Logger } from '@xala-technologies/foundation';
-   
+
    // After v6.0.1 (if needed)
    import { Logger } from '@xala-technologies/enterprise-logger'; // separate package
    ```
@@ -522,22 +545,24 @@ npm run validate
 ### Common Issues
 
 1. **Configuration files not found**
+
    ```bash
    # Ensure package is properly installed
    npm install --save-dev @xala-technologies/enterprise-standards@6.0.1
-   
+
    # Regenerate configurations
    npx enterprise-standards generate --platform <your-platform>
    ```
 
 2. **ESLint parser errors**
+
    ```javascript
    // Ensure tsconfig.json path is correct in .eslintrc.js
    module.exports = {
-     extends: ["./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs"],
+     extends: ['./node_modules/@xala-technologies/enterprise-standards/configs/eslint/base.cjs'],
      parserOptions: {
-       project: './tsconfig.json' // Verify this path exists
-     }
+       project: './tsconfig.json', // Verify this path exists
+     },
    };
    ```
 
@@ -576,13 +601,15 @@ Your project is successfully configured when:
 ## 📦 **Package Information**
 
 ### Quality Metrics
+
 - **ESLint Errors**: 0 ✅
-- **TypeScript Errors**: 0 ✅  
+- **TypeScript Errors**: 0 ✅
 - **Security Issues**: 0 ✅
 - **Test Coverage**: 95%+ ✅
 - **Foundation Components**: Full test coverage ✅
 
 ### Package Details
+
 - **Version**: 6.0.2
 - **Bundle Size**: ~185KB (60% smaller than v5.0.0)
 - **CLI Size**: 95.38KB
@@ -592,6 +619,7 @@ Your project is successfully configured when:
 - **TypeScript**: 4.5+ recommended
 
 ### Performance
+
 - **Startup**: 70% faster than v5.0.0
 - **Memory**: 60% reduction in memory usage
 - **Type checking**: Full strict mode compliance
@@ -599,4 +627,4 @@ Your project is successfully configured when:
 
 ---
 
-**Enterprise Standards v6.0.2** - Production-ready, zero-error, enterprise-grade configuration package. 🚀 ✅ 
+**Enterprise Standards v6.0.2** - Production-ready, zero-error, enterprise-grade configuration package. 🚀 ✅

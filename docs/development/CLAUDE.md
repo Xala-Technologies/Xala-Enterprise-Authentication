@@ -9,12 +9,14 @@ The Xala Enterprise ecosystem is a comprehensive, enterprise-grade TypeScript mo
 ## Architecture
 
 ### Package Layers
+
 - **Standards Layer**: `enterprise-standards` - Configuration and compliance framework
 - **Foundation Layer**: `foundation` - Core services (logging, events, DI, configuration)
 - **Domain Layer**: Business and data services
 - **Application Layer**: UI system, API scaffolding, testing infrastructure
 
 ### Key Dependencies
+
 - All packages depend on `@xala-technologies/enterprise-standards`
 - Domain packages depend on `@xala-technologies/foundation`
 - Uses `workspace:*` for internal package references
@@ -22,6 +24,7 @@ The Xala Enterprise ecosystem is a comprehensive, enterprise-grade TypeScript mo
 ## Essential Commands
 
 ### Workspace-Level Development
+
 ```bash
 # Install all dependencies
 pnpm install
@@ -40,6 +43,7 @@ pnpm run validate:all
 ```
 
 ### Package-Level Development
+
 ```bash
 # Build individual package
 pnpm run build
@@ -62,6 +66,7 @@ pnpm run validate     # Combined type-check + lint + test
 ```
 
 ### Norwegian Compliance & Enterprise Standards
+
 ```bash
 # Norwegian compliance validation (CRITICAL)
 pnpm run norwegian-compliance
@@ -87,6 +92,7 @@ npx enterprise-standards ai --platform nextjs --verbose
 ```
 
 ### MCP Server Integration (AI Development)
+
 ```bash
 # Get package implementation plans
 mcp-tool get_package_plan --packageName foundation
@@ -102,6 +108,7 @@ mcp-tool get_reports_index
 ```
 
 ### Database Operations (NestJS apps)
+
 ```bash
 pnpm run db:generate  # Generate Prisma client
 pnpm run db:migrate   # Run migrations
@@ -112,7 +119,9 @@ pnpm run db:seed      # Seed test data
 ## Core Architecture Patterns
 
 ### Norwegian Compliance First
+
 Every service must include:
+
 ```typescript
 interface NorwegianCompliance {
   nsmClassification: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
@@ -124,6 +133,7 @@ interface NorwegianCompliance {
 ```
 
 ### Factory Pattern for Services
+
 ```typescript
 export class ServiceName {
   static create(options: Partial<Config> = {}): ServiceName {
@@ -133,18 +143,21 @@ export class ServiceName {
 ```
 
 ### Dependency Injection Container
+
 Use the enterprise DI container from foundation:
+
 ```typescript
 import { DIContainer } from '@xala-technologies/foundation';
 
 const container = DIContainer.create();
-container.register('serviceId', serviceFactory, { 
+container.register('serviceId', serviceFactory, {
   lifecycle: 'singleton',
-  nsmClassification: 'RESTRICTED' 
+  nsmClassification: 'RESTRICTED',
 });
 ```
 
 ### Event-Driven Architecture
+
 ```typescript
 import { EventCore } from '@xala-technologies/foundation';
 
@@ -152,13 +165,14 @@ const events = EventCore.create();
 events.emit('eventType', {
   data: payload,
   nsmClassification: 'RESTRICTED',
-  gdprProtected: true
+  gdprProtected: true,
 });
 ```
 
 ## Development Standards
 
 ### TypeScript Requirements
+
 - **ZERO tolerance for 'any' type** - always create specific types
 - Explicit return types for all functions
 - Strict null checks and proper error handling
@@ -166,6 +180,7 @@ events.emit('eventType', {
 - Maximum cyclomatic complexity: 10
 
 ### Code Quality Standards
+
 - Maximum 200 lines per file
 - Maximum 20 lines per function
 - 95%+ test coverage required
@@ -173,6 +188,7 @@ events.emit('eventType', {
 - Memory usage <50MB per module
 
 ### Security Requirements
+
 - Object injection prevention using safe access patterns
 - Path traversal validation in file operations
 - Input sanitization for all public APIs
@@ -182,18 +198,21 @@ events.emit('eventType', {
 ## Package-Specific Notes
 
 ### enterprise-standards
+
 - CLI tool: `npx enterprise-standards <command>`
 - Self-contained configuration generation
 - Platform support: nextjs, nestjs, react-native, electron, library
 - Build: Rollup with TypeScript
 
 ### foundation
+
 - Core dependency for all domain packages
 - Services: ConfigLoader, Logger, EventCore, DIContainer, HealthCheck
 - Norwegian compliance utilities
 - MCP server integration for AI development
 
 ### SaaS Template (xala-saas-template)
+
 - Complete Next.js + NestJS application template
 - Norwegian design tokens and compliance validation
 - Multi-tenant architecture with RBAC
@@ -202,6 +221,7 @@ events.emit('eventType', {
 ## Testing Strategy
 
 ### Test Structure
+
 ```bash
 # Run single test file
 pnpm run test -- path/to/test.spec.ts
@@ -214,6 +234,7 @@ pnpm run test:coverage # Must achieve 95%+ in all metrics
 ```
 
 ### Test Categories
+
 - Unit tests with Norwegian compliance scenarios
 - Integration tests for cross-package interactions
 - Performance tests for initialization timing
@@ -223,7 +244,9 @@ pnpm run test:coverage # Must achieve 95%+ in all metrics
 ## AI Integration & Agent-Driven Development
 
 ### MCP Server Configuration
+
 The ecosystem includes comprehensive MCP (Model Context Protocol) server integration for AI-assisted development:
+
 ```bash
 # Generate MCP configuration
 npx enterprise-standards generate mcp-server
@@ -237,7 +260,9 @@ mcp-tool get_reports_index                 # Access implementation reports
 ```
 
 ### Specialist Agent Integration
+
 The ecosystem supports specialist agents for domain-specific implementation:
+
 - **SecuritySpecialistAgent** - NSM, GDPR, security compliance
 - **AuthenticationSpecialistAgent** - OAuth 2.1, Norwegian government ID integration
 - **DataSpecialistAgent** - GDPR-compliant data handling, enterprise ORM
@@ -245,7 +270,9 @@ The ecosystem supports specialist agents for domain-specific implementation:
 - **IntegrationSpecialistAgent** - API gateway, webhook management
 
 ### Cursor Rules Integration
+
 Key packages include `.cursorrules` files with:
+
 - **Zero tolerance for 'any' type** - Enterprise TypeScript enforcement
 - **Norwegian compliance rules** - NSM, GDPR, WCAG validation
 - **Security-first development patterns** - Object injection prevention
@@ -255,6 +282,7 @@ Key packages include `.cursorrules` files with:
 ## Critical Requirements
 
 ### Before Making Changes
+
 1. Always read existing files to understand context
 2. Check TypeScript errors: `pnpm run type-check`
 3. Validate compliance: `pnpm run norwegian-compliance`
@@ -262,6 +290,7 @@ Key packages include `.cursorrules` files with:
 5. Use MCP tools for guidance: `mcp-tool get_package_plan --packageName {PACKAGE}`
 
 ### Quality Gates (MANDATORY)
+
 1. `pnpm run validate` - Combined type-check + lint + test
 2. `pnpm run validate:comprehensive` - Full enterprise validation including Norwegian compliance
 3. Zero TypeScript errors, ESLint warnings, or test failures
@@ -269,6 +298,7 @@ Key packages include `.cursorrules` files with:
 5. Norwegian compliance validation must pass: `npx enterprise-standards validate --norwegian-compliance`
 
 ### Breaking Changes
+
 - Foundation package changes affect entire ecosystem (12+ dependent packages)
 - Always maintain backward compatibility - use deprecation warnings before removal
 - Update package versions following semantic versioning
@@ -278,6 +308,7 @@ Key packages include `.cursorrules` files with:
 ## Deployment & CI/CD
 
 ### Production Validation
+
 ```bash
 pnpm run ci:validate  # Full CI pipeline
 pnpm run ci:build     # Production build
@@ -285,6 +316,7 @@ pnpm run ci:test      # CI testing with coverage
 ```
 
 ### Norwegian Regulatory Compliance
+
 - All data processing must specify NSM classification
 - GDPR compliance validation on all personal data operations
 - Audit trails required for RESTRICTED and above classifications

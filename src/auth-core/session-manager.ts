@@ -25,7 +25,7 @@ export class DefaultSessionManager implements SessionManager {
       maxConcurrentSessions: number;
       logger: Logger;
       events: EventCore;
-    },
+    }
   ) {
     this.storage = storage;
     this.sessionTimeout = options.sessionTimeout;
@@ -37,7 +37,7 @@ export class DefaultSessionManager implements SessionManager {
   async createSession(
     user: UserProfile,
     clientInfo: ClientInfo,
-    provider: string,
+    provider: string
   ): Promise<SessionInfo> {
     const sessionId = this.generateSessionId();
     const now = new Date();
@@ -126,10 +126,7 @@ export class DefaultSessionManager implements SessionManager {
     return session;
   }
 
-  async updateSession(
-    sessionId: string,
-    updates: Partial<SessionInfo>,
-  ): Promise<void> {
+  async updateSession(sessionId: string, updates: Partial<SessionInfo>): Promise<void> {
     const session = await this.storage.get(sessionId);
 
     if (!session) {
@@ -203,14 +200,11 @@ export class DefaultSessionManager implements SessionManager {
     if (userSessions.length > maxSessions) {
       // Sort by last accessed time (oldest first)
       const sortedSessions = userSessions.sort(
-        (a, b) => a.lastAccessedAt.getTime() - b.lastAccessedAt.getTime(),
+        (a, b) => a.lastAccessedAt.getTime() - b.lastAccessedAt.getTime()
       );
 
       // Remove oldest sessions
-      const sessionsToRemove = sortedSessions.slice(
-        0,
-        userSessions.length - maxSessions,
-      );
+      const sessionsToRemove = sortedSessions.slice(0, userSessions.length - maxSessions);
 
       for (const session of sessionsToRemove) {
         await this.deleteSession(session.id);
@@ -226,7 +220,7 @@ export class DefaultSessionManager implements SessionManager {
 
   private generateSessionId(): string {
     // Generate cryptographically secure session ID
-    return `${randomUUID() }-${ randomBytes(16).toString('hex')}`;
+    return `${randomUUID()}-${randomBytes(16).toString('hex')}`;
   }
 
   static create(
@@ -236,7 +230,7 @@ export class DefaultSessionManager implements SessionManager {
       maxConcurrentSessions: number;
       logger: Logger;
       events: EventCore;
-    },
+    }
   ): DefaultSessionManager {
     return new DefaultSessionManager(storage, options);
   }

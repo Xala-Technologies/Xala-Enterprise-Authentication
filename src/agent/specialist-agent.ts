@@ -25,10 +25,7 @@ export class AuthenticationSpecialistAgent {
 
   analyzeRequirements(_spec: unknown): unknown {
     return {
-      recommendations: [
-        'Use foundation services',
-        'Implement Norwegian compliance',
-      ],
+      recommendations: ['Use foundation services', 'Implement Norwegian compliance'],
       compliance: { nsm: true, gdpr: true, wcag: true },
     };
   }

@@ -22,7 +22,6 @@ import type {
   NSMClassificationGuardOptions,
 } from './types.js';
 
-
 /**
  * Middleware factory configuration
  */
@@ -38,8 +37,7 @@ export class MiddlewareFactory {
   private readonly defaultOptions: GuardOptions;
 
   constructor(config: MiddlewareFactoryConfig) {
-    this.tokenExtractor =
-      config.tokenExtractor ?? BearerTokenExtractor.create();
+    this.tokenExtractor = config.tokenExtractor ?? BearerTokenExtractor.create();
     this.sessionValidator = config.sessionValidator;
     this.defaultOptions = config.defaultOptions ?? {};
   }
@@ -58,10 +56,7 @@ export class MiddlewareFactory {
   /**
    * Create role-based middleware
    */
-  createRoleMiddleware(
-    roles: string[],
-    options?: Partial<RoleGuardOptions>,
-  ): AuthMiddleware {
+  createRoleMiddleware(roles: string[], options?: Partial<RoleGuardOptions>): AuthMiddleware {
     const guard = RoleGuard.create(this.tokenExtractor, this.sessionValidator, {
       ...this.defaultOptions,
       ...options,
@@ -75,13 +70,13 @@ export class MiddlewareFactory {
    */
   createPermissionMiddleware(
     permissions: string[],
-    options?: Partial<PermissionGuardOptions>,
+    options?: Partial<PermissionGuardOptions>
   ): AuthMiddleware {
-    const guard = PermissionGuard.create(
-      this.tokenExtractor,
-      this.sessionValidator,
-      { ...this.defaultOptions, ...options, permissions },
-    );
+    const guard = PermissionGuard.create(this.tokenExtractor, this.sessionValidator, {
+      ...this.defaultOptions,
+      ...options,
+      permissions,
+    });
     return guard.middleware;
   }
 
@@ -90,17 +85,13 @@ export class MiddlewareFactory {
    */
   createNSMClassificationMiddleware(
     classification: NSMClassification,
-    options?: Partial<NSMClassificationGuardOptions>,
+    options?: Partial<NSMClassificationGuardOptions>
   ): AuthMiddleware {
-    const guard = NSMClassificationGuard.create(
-      this.tokenExtractor,
-      this.sessionValidator,
-      {
-        ...this.defaultOptions,
-        ...options,
-        requiredClassification: classification,
-      },
-    );
+    const guard = NSMClassificationGuard.create(this.tokenExtractor, this.sessionValidator, {
+      ...this.defaultOptions,
+      ...options,
+      requiredClassification: classification,
+    });
     return guard.middleware;
   }
 
@@ -108,11 +99,7 @@ export class MiddlewareFactory {
    * Create composite middleware that requires multiple conditions
    */
   createCompositeMiddleware(guards: AuthMiddleware[]): AuthMiddleware {
-    return async (
-      req: AuthRequest,
-      res: AuthResponse,
-      next: NextFunction,
-    ): Promise<void> => {
+    return async (req: AuthRequest, res: AuthResponse, next: NextFunction): Promise<void> => {
       let index = 0;
 
       const runNext = async (error?: Error): Promise<void> => {
@@ -168,7 +155,7 @@ export class MiddlewareFactory {
       this.createAuthMiddleware(options),
       this.createPermissionMiddleware(
         ['gdpr:read_personal_data', 'gdpr:process_data', 'gdpr:delete_data'],
-        { requireAll: true },
+        { requireAll: true }
       ),
       this.createNSMClassificationMiddleware('CONFIDENTIAL'),
     ]);
@@ -183,13 +170,9 @@ export class MiddlewareFactory {
  * Default session validator implementation
  */
 export class DefaultSessionValidator implements SessionValidator {
-  private readonly validateSession: (
-    sessionId: string,
-  ) => Promise<AuthContext | null>;
+  private readonly validateSession: (sessionId: string) => Promise<AuthContext | null>;
 
-  constructor(
-    validateSession: (sessionId: string) => Promise<AuthContext | null>,
-  ) {
+  constructor(validateSession: (sessionId: string) => Promise<AuthContext | null>) {
     this.validateSession = validateSession;
   }
 
@@ -198,7 +181,7 @@ export class DefaultSessionValidator implements SessionValidator {
   }
 
   static create(
-    validateSession: (sessionId: string) => Promise<AuthContext | null>,
+    validateSession: (sessionId: string) => Promise<AuthContext | null>
   ): DefaultSessionValidator {
     return new DefaultSessionValidator(validateSession);
   }

@@ -18,10 +18,10 @@ export const NSMClassificationLevels: Record<NSMClassification, number> = {
  */
 export function validateNSMClassification(
   userLevel: NSMClassification,
-  requiredLevel: NSMClassification,
+  requiredLevel: NSMClassification
 ): boolean {
-  const userLevelValue = NSMClassificationLevels[userLevel];
-  const requiredLevelValue = NSMClassificationLevels[requiredLevel];
+  const userLevelValue = NSMClassificationLevels[userLevel as keyof typeof NSMClassificationLevels];
+  const requiredLevelValue = NSMClassificationLevels[requiredLevel as keyof typeof NSMClassificationLevels];
 
   return userLevelValue >= requiredLevelValue;
 }
@@ -31,24 +31,22 @@ export function validateNSMClassification(
  */
 export function getMostRestrictiveClassification(
   level1: NSMClassification,
-  level2: NSMClassification,
+  level2: NSMClassification
 ): NSMClassification {
-  const level1Value = NSMClassificationLevels[level1];
-  const level2Value = NSMClassificationLevels[level2];
+  const level1Value = NSMClassificationLevels[level1 as keyof typeof NSMClassificationLevels];
+  const level2Value = NSMClassificationLevels[level2 as keyof typeof NSMClassificationLevels];
 
   const highestValue = Math.max(level1Value, level2Value);
 
   return Object.keys(NSMClassificationLevels).find(
-    (key) => NSMClassificationLevels[key as NSMClassification] === highestValue,
+    (key) => NSMClassificationLevels[key as keyof typeof NSMClassificationLevels] === highestValue
   ) as NSMClassification;
 }
 
 /**
  * Validate Norwegian personal number (11 digits)
  */
-export function validateNorwegianPersonalNumber(
-  personalNumber: string,
-): boolean {
+export function validateNorwegianPersonalNumber(personalNumber: string): boolean {
   if (typeof personalNumber !== 'string') {
     return false;
   }
@@ -67,20 +65,14 @@ export function validateNorwegianPersonalNumber(
   const weights2 = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
 
   // First check digit
-  const sum1 = weights1.reduce(
-    (sum, weight, index) => sum + weight * digits[index]!,
-    0,
-  );
+  const sum1 = weights1.reduce((sum, weight, index) => sum + weight * (digits[index] ?? 0), 0);
   const check1 = (11 - (sum1 % 11)) % 11;
   if (check1 === 10 || check1 !== digits[9]) {
     return false;
   }
 
   // Second check digit
-  const sum2 = weights2.reduce(
-    (sum, weight, index) => sum + weight * digits[index]!,
-    0,
-  );
+  const sum2 = weights2.reduce((sum, weight, index) => sum + weight * (digits[index] ?? 0), 0);
   const check2 = (11 - (sum2 % 11)) % 11;
   if (check2 === 10 || check2 !== digits[10]) {
     return false;
@@ -106,9 +98,7 @@ export function validateNorwegianPhoneNumber(phoneNumber: string): boolean {
   // - Can be prefixed with country code 47
 
   // Remove country code if present
-  const withoutCountryCode = cleaned.startsWith('47')
-    ? cleaned.slice(2)
-    : cleaned;
+  const withoutCountryCode = cleaned.startsWith('47') ? cleaned.slice(2) : cleaned;
 
   // Must be exactly 8 digits
   if (!/^\d{8}$/.test(withoutCountryCode)) {
@@ -117,7 +107,7 @@ export function validateNorwegianPhoneNumber(phoneNumber: string): boolean {
 
   // Check valid first digit
   const firstDigit = withoutCountryCode[0];
-  return ['2', '3', '4', '5', '6', '7', '9'].includes(firstDigit!);
+  return firstDigit !== undefined && ['2', '3', '4', '5', '6', '7', '9'].includes(firstDigit);
 }
 
 /**
@@ -137,7 +127,7 @@ export function validateNorwegianPostalCode(postalCode: string): boolean {
  */
 export function checkNSMClassificationAccess(
   userClassification: NSMClassification,
-  requiredClassification: NSMClassification,
+  requiredClassification: NSMClassification
 ): boolean {
   const classificationLevels: Record<NSMClassification, number> = {
     OPEN: 0,
@@ -146,8 +136,8 @@ export function checkNSMClassificationAccess(
     SECRET: 3,
   };
 
-  const userLevel = classificationLevels[userClassification];
-  const requiredLevel = classificationLevels[requiredClassification];
+  const userLevel = classificationLevels[userClassification as keyof typeof classificationLevels];
+  const requiredLevel = classificationLevels[requiredClassification as keyof typeof classificationLevels];
 
   return userLevel >= requiredLevel;
 }
@@ -155,16 +145,10 @@ export function checkNSMClassificationAccess(
 /**
  * Get NSM classification level from string
  */
-export function parseNSMClassification(
-  classification: string,
-): NSMClassification {
+export function parseNSMClassification(classification: string): NSMClassification {
   const upperClassification = classification.toUpperCase();
 
-  if (
-    ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'].includes(
-      upperClassification,
-    )
-  ) {
+  if (['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'].includes(upperClassification)) {
     return upperClassification as NSMClassification;
   }
 
@@ -175,9 +159,7 @@ export function parseNSMClassification(
 /**
  * Validate Norwegian organization number (9 digits)
  */
-export function validateNorwegianOrganizationNumber(
-  orgNumber: string,
-): boolean {
+export function validateNorwegianOrganizationNumber(orgNumber: string): boolean {
   if (typeof orgNumber !== 'string') {
     return false;
   }
@@ -194,10 +176,7 @@ export function validateNorwegianOrganizationNumber(
   const digits = cleaned.split('').map(Number);
   const weights = [3, 2, 7, 6, 5, 4, 3, 2];
 
-  const sum = weights.reduce(
-    (total, weight, index) => total + weight * digits[index]!,
-    0,
-  );
+  const sum = weights.reduce((total, weight, index) => total + weight * (digits[index] ?? 0), 0);
   const remainder = sum % 11;
   const checkDigit = remainder === 0 ? 0 : 11 - remainder;
 
@@ -225,9 +204,7 @@ export function formatNorwegianPhoneNumber(phoneNumber: string): string {
   }
 
   const cleaned = phoneNumber.replace(/[\s\-+]/g, '');
-  const withoutCountryCode = cleaned.startsWith('47')
-    ? cleaned.slice(2)
-    : cleaned;
+  const withoutCountryCode = cleaned.startsWith('47') ? cleaned.slice(2) : cleaned;
 
   return `+47 ${withoutCountryCode.slice(0, 3)} ${withoutCountryCode.slice(3, 5)} ${withoutCountryCode.slice(5)}`;
 }
@@ -271,12 +248,9 @@ export function generateComplianceReport(config: {
   supportedLanguages: readonly string[];
   auditTrail: boolean;
 }): ComplianceReport {
-  const nsmCompliant = [
-    'OPEN',
-    'RESTRICTED',
-    'CONFIDENTIAL',
-    'SECRET',
-  ].includes(config.nsmClassification);
+  const nsmCompliant = ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'].includes(
+    config.nsmClassification
+  );
   const gdprIssues: string[] = [];
   const languageIssues: string[] = [];
 
@@ -302,18 +276,14 @@ export function generateComplianceReport(config: {
     languageIssues.length === 0,
   ];
 
-  const score = Math.round(
-    (complianceAreas.filter(Boolean).length / complianceAreas.length) * 100,
-  );
+  const score = Math.round((complianceAreas.filter(Boolean).length / complianceAreas.length) * 100);
 
   return {
     timestamp: new Date(),
     nsm: {
       compliant: nsmCompliant,
       classification: config.nsmClassification,
-      issues: nsmCompliant
-        ? []
-        : [`Invalid NSM classification: ${config.nsmClassification}`],
+      issues: nsmCompliant ? [] : [`Invalid NSM classification: ${config.nsmClassification}`],
     },
     gdpr: {
       compliant: gdprIssues.length === 0,

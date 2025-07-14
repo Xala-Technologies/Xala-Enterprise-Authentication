@@ -21,7 +21,7 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
   constructor(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: PermissionGuardOptions,
+    options: PermissionGuardOptions
   ) {
     super(tokenExtractor, sessionValidator, options);
     this.requiredPermissions = options.permissions;
@@ -39,21 +39,17 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
 
     if (this.requireAll) {
       // User must have all required permissions
-      return this.requiredPermissions.every((permission) =>
-        userPermissions.includes(permission),
-      );
+      return this.requiredPermissions.every((permission) => userPermissions.includes(permission));
     } else {
       // User must have at least one required permission
-      return this.requiredPermissions.some((permission) =>
-        userPermissions.includes(permission),
-      );
+      return this.requiredPermissions.some((permission) => userPermissions.includes(permission));
     }
   }
 
   static override create(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: PermissionGuardOptions,
+    options: PermissionGuardOptions
   ): PermissionGuard {
     return new PermissionGuard(tokenExtractor, sessionValidator, options);
   }
@@ -64,15 +60,9 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
  */
 export function requirePermissions(
   permissions: string[],
-  options?: Partial<PermissionGuardOptions>,
-): (
-  tokenExtractor: TokenExtractor,
-  sessionValidator: SessionValidator,
-) => PermissionGuard {
-  return (
-    tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
-  ): PermissionGuard => {
+  options?: Partial<PermissionGuardOptions>
+): (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator) => PermissionGuard {
+  return (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard => {
     return PermissionGuard.create(tokenExtractor, sessionValidator, {
       ...options,
       permissions,
@@ -89,7 +79,7 @@ export const PermissionGuards = {
    */
   requireRead: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['read'],
@@ -101,7 +91,7 @@ export const PermissionGuards = {
    */
   requireWrite: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['write'],
@@ -113,7 +103,7 @@ export const PermissionGuards = {
    */
   requireDelete: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['delete'],
@@ -125,7 +115,7 @@ export const PermissionGuards = {
    */
   requireAdminPermissions: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['admin:read', 'admin:write', 'admin:delete'],
@@ -138,7 +128,7 @@ export const PermissionGuards = {
    */
   requireGDPRAccess: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['gdpr:read_personal_data', 'gdpr:export_data'],
@@ -151,7 +141,7 @@ export const PermissionGuards = {
    */
   requireOwnDataAccess: (
     tokenExtractor: TokenExtractor,
-    sessionValidator: SessionValidator,
+    sessionValidator: SessionValidator
   ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['read_own_data', 'update_own_data'],

@@ -50,7 +50,7 @@ export type NextFunction = (error?: Error) => void;
 export type AuthMiddleware = (
   req: AuthRequest,
   res: AuthResponse,
-  next: NextFunction,
+  next: NextFunction
 ) => void | Promise<void>;
 
 /**

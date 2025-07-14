@@ -34,15 +34,14 @@ export class DefaultRBACService implements RBACService {
     roleManager?: RoleManager;
     userStore?: UserPermissionStore;
   }) {
-    this.permissions =
-      config?.permissionManager ?? DefaultPermissionManager.create();
+    this.permissions = config?.permissionManager ?? DefaultPermissionManager.create();
     this.roles = config?.roleManager ?? DefaultRoleManager.create();
     this.userStore = config?.userStore ?? InMemoryUserPermissionStore.create();
 
     this.evaluator = DefaultPermissionEvaluator.create(
       this.permissions,
       this.roles,
-      this.userStore,
+      this.userStore
     );
   }
 
@@ -86,10 +85,7 @@ export class DefaultRBACService implements RBACService {
     return roles;
   }
 
-  async grantPermissionToUser(
-    userId: string,
-    permissionId: string,
-  ): Promise<void> {
+  async grantPermissionToUser(userId: string, permissionId: string): Promise<void> {
     // Verify permission exists
     const permission = await this.permissions.getPermission(permissionId);
     if (!permission) {
@@ -106,10 +102,7 @@ export class DefaultRBACService implements RBACService {
     }
   }
 
-  async revokePermissionFromUser(
-    userId: string,
-    permissionId: string,
-  ): Promise<void> {
+  async revokePermissionFromUser(userId: string, permissionId: string): Promise<void> {
     const currentPermissions = await this.userStore.getUserPermissions(userId);
     const newPermissions = currentPermissions.filter((p) => p !== permissionId);
 
@@ -119,8 +112,7 @@ export class DefaultRBACService implements RBACService {
   }
 
   async getUserPermissions(userId: string): Promise<readonly Permission[]> {
-    const effectivePermissions =
-      await this.evaluator.getEffectivePermissions(userId);
+    const effectivePermissions = await this.evaluator.getEffectivePermissions(userId);
     return effectivePermissions;
   }
 
@@ -251,13 +243,7 @@ export class DefaultRBACService implements RBACService {
         id: 'admin',
         name: 'Administrator',
         description: 'System administrator',
-        permissions: [
-          'read',
-          'write',
-          'delete',
-          'admin:manage_users',
-          'admin:manage_roles',
-        ],
+        permissions: ['read', 'write', 'delete', 'admin:manage_users', 'admin:manage_roles'],
         nsmClassification: 'CONFIDENTIAL',
       },
 

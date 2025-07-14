@@ -8,6 +8,7 @@
    - Copy the token
 
 2. **Update .env file:**
+
    ```bash
    # Replace 'your_github_token_here' with your actual token
    GITHUB_TOKEN=ghp_your_actual_token_here

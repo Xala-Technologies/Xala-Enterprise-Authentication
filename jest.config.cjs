@@ -22,22 +22,23 @@ config.collectCoverageFrom = [
   '!src/**/*.test.{ts,tsx}',
   '!src/**/__tests__/**/*',
   '!src/agent/**/*',
-  '!src/auth-ui-helpers/**/*' // Exclude React components for now
+  '!src/auth-ui-helpers/**/*', // Exclude React components for now
 ];
 
 // JSX support for React components
 config.transform = {
   ...config.transform,
-  '^.+\\.tsx?$': ['ts-jest', {
-    tsconfig: {
-      jsx: 'react-jsx',
+  '^.+\\.tsx?$': [
+    'ts-jest',
+    {
+      tsconfig: {
+        jsx: 'react-jsx',
+      },
     },
-  }],
+  ],
 };
 
 // Handle ES modules from foundation
-config.transformIgnorePatterns = [
-  'node_modules/(?!(@xala-technologies)/)',
-];
+config.transformIgnorePatterns = ['node_modules/(?!(@xala-technologies)/)'];
 
 module.exports = config;

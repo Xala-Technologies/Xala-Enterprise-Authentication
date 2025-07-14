@@ -4,26 +4,13 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
-import {
-  randomBytes,
-  createHmac,
-  timingSafeEqual,
-  generateKeyPairSync,
-} from 'crypto';
+import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 
 import { Logger } from '@xala-technologies/enterprise-standards';
 
-import type {
-  UserProfile,
-  TokenClaims,
-  NSMClassification,
-} from '../types/index.js';
+import type { UserProfile, TokenClaims, NSMClassification } from '../types/index.js';
 
-import type {
-  TokenManager,
-  TokenValidationResult,
-  TokenRefreshResult,
-} from './types.js';
+import type { TokenManager, TokenValidationResult, TokenRefreshResult } from './types.js';
 
 interface JWKSKey {
   readonly kid: string;
@@ -85,8 +72,7 @@ export class EnhancedTokenManager implements TokenManager {
     this.refreshTokenLifetime = options.refreshTokenLifetime;
     this.jwksRotationEnabled = options.jwksRotationEnabled ?? true;
     this.tokenBindingEnabled = options.tokenBindingEnabled ?? true;
-    this.keyRotationInterval =
-      options.keyRotationInterval ?? 24 * 60 * 60 * 1000; // 24 hours
+    this.keyRotationInterval = options.keyRotationInterval ?? 24 * 60 * 60 * 1000; // 24 hours
 
     // Initialize with primary key
     this.currentKeyId = this.generateInitialKey(options.accessTokenSecret);
@@ -110,7 +96,7 @@ export class EnhancedTokenManager implements TokenManager {
       deviceId: string;
       fingerprint: string;
       platform: string;
-    },
+    }
   ): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + Math.floor(this.accessTokenLifetime / 1000);
@@ -172,17 +158,17 @@ export class EnhancedTokenManager implements TokenManager {
       nsmClassification: user.nsmClassification,
     });
 
-    return token;
+    return Promise.resolve(token);
   }
 
   async generateRefreshToken(
     user: UserProfile,
     sessionId: string,
-    deviceInfo?: {
+    _deviceInfo?: {
       deviceId: string;
       fingerprint: string;
       platform: string;
-    },
+    }
   ): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + Math.floor(this.refreshTokenLifetime / 1000);
@@ -223,7 +209,7 @@ export class EnhancedTokenManager implements TokenManager {
       expiresAt: new Date(exp * 1000),
     });
 
-    return token;
+    return Promise.resolve(token);
   }
 
   async validateToken(
@@ -232,7 +218,7 @@ export class EnhancedTokenManager implements TokenManager {
       deviceId: string;
       fingerprint: string;
       platform: string;
-    },
+    }
   ): Promise<TokenValidationResult> {
     try {
       // Check if token is revoked
@@ -253,8 +239,7 @@ export class EnhancedTokenManager implements TokenManager {
       }
 
       // Get the appropriate key for validation
-      const keyId =
-        (decodedClaims as EnhancedTokenClaims).kid || this.currentKeyId;
+      const keyId = (decodedClaims as EnhancedTokenClaims).kid || this.currentKeyId;
       const validationKey = this.activeKeys.get(keyId);
 
       if (!validationKey) {
@@ -293,10 +278,7 @@ export class EnhancedTokenManager implements TokenManager {
       // Validate device binding if enabled
       if (this.tokenBindingEnabled && deviceInfo) {
         const enhancedClaims = claims;
-        const validationResult = this.validateDeviceBinding(
-          enhancedClaims,
-          deviceInfo,
-        );
+        const validationResult = this.validateDeviceBinding(enhancedClaims, deviceInfo);
 
         if (!validationResult.valid) {
           return validationResult;
@@ -329,8 +311,7 @@ export class EnhancedTokenManager implements TokenManager {
         };
       }
 
-      const keyId =
-        (decodedClaims as EnhancedTokenClaims).kid || this.currentKeyId;
+      const keyId = (decodedClaims as EnhancedTokenClaims).kid || this.currentKeyId;
       const validationKey = this.activeKeys.get(keyId);
 
       if (!validationKey) {
@@ -391,11 +372,7 @@ export class EnhancedTokenManager implements TokenManager {
         }
         : undefined;
 
-      const newAccessToken = await this.generateAccessToken(
-        user,
-        claims.sessionId,
-        deviceInfo,
-      );
+      const newAccessToken = await this.generateAccessToken(user, claims.sessionId, deviceInfo);
       const expiresIn = Math.floor(this.accessTokenLifetime / 1000);
 
       this.logger.debug('Enhanced access token refreshed', {
@@ -431,7 +408,7 @@ export class EnhancedTokenManager implements TokenManager {
     }
 
     this.logger.info('Enhanced token revoked', {
-      tokenPrefix: `${token.substring(0, 10) }...`,
+      tokenPrefix: `${token.substring(0, 10)}...`,
       nsmClassification: 'RESTRICTED' as NSMClassification,
     });
   }
@@ -440,20 +417,20 @@ export class EnhancedTokenManager implements TokenManager {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) {
-        return null;
+        return Promise.resolve(null);
       }
 
       const payload = parts[1];
       if (!payload) {
-        return null;
+        return Promise.resolve(null);
       }
 
       const decoded = Buffer.from(payload, 'base64url').toString('utf8');
       const claims = JSON.parse(decoded) as TokenClaims;
 
-      return claims;
+      return Promise.resolve(claims);
     } catch {
-      return null;
+      return Promise.resolve(null);
     }
   }
 
@@ -571,14 +548,12 @@ export class EnhancedTokenManager implements TokenManager {
 
   private createBindingHash(binding: DeviceBinding, sessionId: string): string {
     const bindingData = `${binding.deviceId}:${binding.fingerprint}:${sessionId}`;
-    return createHmac('sha256', 'device-binding-secret')
-      .update(bindingData)
-      .digest('hex');
+    return createHmac('sha256', 'device-binding-secret').update(bindingData).digest('hex');
   }
 
   private validateDeviceBinding(
     claims: EnhancedTokenClaims,
-    deviceInfo: { deviceId: string; fingerprint: string; platform: string },
+    deviceInfo: { deviceId: string; fingerprint: string; platform: string }
   ): TokenValidationResult {
     if (!claims.deviceBinding || !claims.bindingHash) {
       return {
@@ -603,10 +578,7 @@ export class EnhancedTokenManager implements TokenManager {
     }
 
     // Validate binding hash
-    const expectedHash = this.createBindingHash(
-      claims.deviceBinding,
-      claims.sessionId,
-    );
+    const expectedHash = this.createBindingHash(claims.deviceBinding, claims.sessionId);
     if (claims.bindingHash !== expectedHash) {
       return {
         valid: false,
@@ -624,17 +596,11 @@ export class EnhancedTokenManager implements TokenManager {
       kid: key.kid,
     };
 
-    const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
-      'base64url',
-    );
-    const encodedPayload = Buffer.from(JSON.stringify(claims)).toString(
-      'base64url',
-    );
+    const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+    const encodedPayload = Buffer.from(JSON.stringify(claims)).toString('base64url');
 
     const data = `${encodedHeader}.${encodedPayload}`;
-    const signature = createHmac('sha256', key.secret!)
-      .update(data)
-      .digest('base64url');
+    const signature = createHmac('sha256', key.secret!).update(data).digest('base64url');
 
     return `${data}.${signature}`;
   }
@@ -648,9 +614,7 @@ export class EnhancedTokenManager implements TokenManager {
 
       const [encodedHeader, encodedPayload, providedSignature] = parts;
       const data = `${encodedHeader}.${encodedPayload}`;
-      const expectedSignature = createHmac('sha256', key.secret!)
-        .update(data)
-        .digest('base64url');
+      const expectedSignature = createHmac('sha256', key.secret!).update(data).digest('base64url');
 
       if (!providedSignature || !expectedSignature) {
         return null;

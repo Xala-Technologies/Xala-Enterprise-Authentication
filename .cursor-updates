@@ -38,11 +38,13 @@
 - ✅ **WCAG accessibility** standards support
 
 **Publishing Details:**
-- **Registry**: GitHub Packages (npm.pkg.github.com)
+- **Registry**: GitHub Packages (npm.pkg.github.com) ✅ PUBLISHED
 - **Package Name**: @xala-technologies/authentication
 - **License**: MIT
 - **Node.js Compatibility**: >=18.0.0
 - **React Compatibility**: >=16.8.0
+- **Package Size**: 146.2 kB
+- **Published With**: pnpm (recommended)
 
 ---
 

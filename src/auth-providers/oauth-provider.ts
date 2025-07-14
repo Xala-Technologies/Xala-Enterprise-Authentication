@@ -5,6 +5,10 @@
  */
 
 import { randomBytes, createHash } from 'crypto';
+
+import type { UserProfile } from '../types/index.js';
+import { isValidEmail } from '../utils/type-safety.js';
+
 import type {
   AuthenticationProvider,
   AuthenticationCredentials,
@@ -13,8 +17,6 @@ import type {
   OAuthCredentials,
   OAuthProviderConfig,
 } from './types.js';
-import type { UserProfile } from '../types/index.js';
-import { isValidEmail } from '../utils/type-safety.js';
 
 export class OAuthProvider implements AuthenticationProvider {
   readonly id: string;
@@ -23,7 +25,7 @@ export class OAuthProvider implements AuthenticationProvider {
   readonly enabled: boolean;
   readonly nsmClassification;
   readonly supportedLanguages = ['nb-NO', 'en-US'] as const;
-  
+
   private readonly config: OAuthProviderConfig;
   private initialized = false;
   private readonly stateStore = new Map<string, StateData>();
@@ -45,11 +47,13 @@ export class OAuthProvider implements AuthenticationProvider {
     // 1. Validate OAuth endpoints
     // 2. Fetch well-known configuration if available
     // 3. Setup token validation
-    
+
     this.initialized = true;
   }
 
-  async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationProviderResult> {
+  async authenticate(
+    credentials: AuthenticationCredentials,
+  ): Promise<AuthenticationProviderResult> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -99,7 +103,9 @@ export class OAuthProvider implements AuthenticationProvider {
     return Promise.resolve();
   }
 
-  async validateCredentials(credentials: AuthenticationCredentials): Promise<boolean> {
+  async validateCredentials(
+    credentials: AuthenticationCredentials,
+  ): Promise<boolean> {
     if (!this.isOAuthCredentials(credentials)) {
       return false;
     }
@@ -139,7 +145,9 @@ export class OAuthProvider implements AuthenticationProvider {
     return `${this.config.authorizationUrl}?${params.toString()}`;
   }
 
-  private async handleAuthorizationCode(credentials: OAuthCredentials): Promise<AuthenticationProviderResult> {
+  private async handleAuthorizationCode(
+    credentials: OAuthCredentials,
+  ): Promise<AuthenticationProviderResult> {
     // Validate state
     const stateData = this.stateStore.get(credentials.state!);
     if (!stateData) {
@@ -177,7 +185,9 @@ export class OAuthProvider implements AuthenticationProvider {
     };
   }
 
-  private async handleDirectCredentials(credentials: OAuthCredentials): Promise<AuthenticationProviderResult> {
+  private async handleDirectCredentials(
+    credentials: OAuthCredentials,
+  ): Promise<AuthenticationProviderResult> {
     if (!isValidEmail(credentials.email!)) {
       return {
         success: false,
@@ -192,7 +202,7 @@ export class OAuthProvider implements AuthenticationProvider {
     // In production, validate credentials with OAuth provider
     const user: UserProfile = {
       id: `oauth-${randomBytes(8).toString('hex')}`,
-      email: credentials.email!,
+      email: credentials.email,
       name: 'OAuth User',
       roles: ['user'],
       permissions: ['read'],
@@ -211,7 +221,9 @@ export class OAuthProvider implements AuthenticationProvider {
     };
   }
 
-  private isOAuthCredentials(credentials: AuthenticationCredentials): credentials is OAuthCredentials {
+  private isOAuthCredentials(
+    credentials: AuthenticationCredentials,
+  ): credentials is OAuthCredentials {
     return credentials.type === 'oauth';
   }
 
@@ -224,7 +236,7 @@ export class OAuthProvider implements AuthenticationProvider {
     const codeChallenge = createHash('sha256')
       .update(codeVerifier)
       .digest('base64url');
-    
+
     return { codeVerifier, codeChallenge };
   }
 
@@ -236,7 +248,7 @@ export class OAuthProvider implements AuthenticationProvider {
       provider: this.id,
       nonce: randomBytes(16).toString('hex'),
     };
-    
+
     return Buffer.from(JSON.stringify(payload)).toString('base64');
   }
 

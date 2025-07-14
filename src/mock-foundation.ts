@@ -24,7 +24,7 @@ export interface EventCore {
 }
 
 export class Logger {
-  private serviceName: string;
+  private readonly serviceName: string;
 
   constructor(options: { serviceName: string; [key: string]: unknown }) {
     this.serviceName = options.serviceName;
@@ -46,17 +46,20 @@ export class Logger {
     console.error(`[${this.serviceName}] ${message}`, meta);
   }
 
-  static create(options: { serviceName: string; [key: string]: unknown }): Logger {
+  static create(options: {
+    serviceName: string;
+    [key: string]: unknown;
+  }): Logger {
     return new Logger(options);
   }
 }
 
 export class EventCore {
-  private handlers = new Map<string, Array<(data: EventData) => void>>();
+  private readonly handlers = new Map<string, Array<(data: EventData) => void>>();
 
   emit(eventType: string, data: EventData): void {
     const handlers = this.handlers.get(eventType) || [];
-    handlers.forEach(handler => handler(data));
+    handlers.forEach((handler) => handler(data));
   }
 
   on(eventType: string, handler: (data: EventData) => void): void {
@@ -74,7 +77,10 @@ export class EventCore {
     }
   }
 
-  static create(options: { serviceName: string; [key: string]: unknown }): EventCore {
+  static create(options: {
+    serviceName: string;
+    [key: string]: unknown;
+  }): EventCore {
     return new EventCore();
   }
 }

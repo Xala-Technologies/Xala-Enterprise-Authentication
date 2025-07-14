@@ -3,11 +3,11 @@
  * @xala-technologies/authentication
  */
 
-export * from "./session-manager.js";
-export * from "./session-storage.js";
-export * from "./token-manager.js";
-export * from "./enhanced-token-manager.js";
-export * from "./authentication-context.js";
+export * from './session-manager.js';
+export * from './session-storage.js';
+export * from './token-manager.js';
+export * from './enhanced-token-manager.js';
+export * from './authentication-context.js';
 
 // Export types but exclude conflicting interface definitions
 export type {
@@ -18,5 +18,5 @@ export type {
   SessionManager,
   AuthenticationContext,
   BruteForceProtection,
-  SessionStorageBackend
-} from "./types.js";
+  SessionStorageBackend,
+} from './types.js';

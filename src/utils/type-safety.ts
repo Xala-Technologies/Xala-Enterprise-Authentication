@@ -3,7 +3,11 @@
  * @xala-technologies/authentication
  */
 
-import type { ValidationResult, ValidationError, SafeAccessResult } from '../types/index.js';
+import type {
+  ValidationResult,
+  ValidationError,
+  SafeAccessResult,
+} from '../types/index.js';
 
 /**
  * Validate email addresses
@@ -19,7 +23,9 @@ export function isValidEmail(email: unknown): email is string {
 /**
  * Validate Norwegian personal number (11 digits)
  */
-export function isValidNorwegianPersonalNumber(personalNumber: unknown): personalNumber is string {
+export function isValidNorwegianPersonalNumber(
+  personalNumber: unknown,
+): personalNumber is string {
   if (typeof personalNumber !== 'string') {
     return false;
   }
@@ -80,7 +86,11 @@ export function isValidUserProfile(value: unknown): value is {
 /**
  * Safe object property access
  */
-export function safeGet<T>(obj: unknown, path: string, defaultValue?: T): T | undefined {
+export function safeGet<T>(
+  obj: unknown,
+  path: string,
+  defaultValue?: T,
+): T | undefined {
   if (typeof obj !== 'object' || obj === null) {
     return defaultValue;
   }
@@ -89,7 +99,11 @@ export function safeGet<T>(obj: unknown, path: string, defaultValue?: T): T | un
   let current: any = obj;
 
   for (const key of keys) {
-    if (current === null || current === undefined || typeof current !== 'object') {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== 'object'
+    ) {
       return defaultValue;
     }
     current = current[key];
@@ -103,7 +117,7 @@ export function safeGet<T>(obj: unknown, path: string, defaultValue?: T): T | un
  */
 export function createTypeSafeConfig<T extends Record<string, unknown>>(
   config: T,
-  defaults: Partial<T>
+  defaults: Partial<T>,
 ): T {
   return { ...defaults, ...config } as T;
 }
@@ -113,7 +127,7 @@ export function createTypeSafeConfig<T extends Record<string, unknown>>(
  */
 export function validateRequiredFields<T extends Record<string, unknown>>(
   obj: T,
-  requiredFields: Array<keyof T>
+  requiredFields: Array<keyof T>,
 ): ValidationResult {
   const errors: ValidationError[] = [];
   const warnings: ValidationError[] = [];
@@ -123,7 +137,7 @@ export function validateRequiredFields<T extends Record<string, unknown>>(
       errors.push({
         field: String(field),
         message: `Field '${String(field)}' is required`,
-        code: 'REQUIRED_FIELD_MISSING'
+        code: 'REQUIRED_FIELD_MISSING',
       });
     }
   }
@@ -132,7 +146,7 @@ export function validateRequiredFields<T extends Record<string, unknown>>(
     valid: errors.length === 0,
     success: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
@@ -141,19 +155,19 @@ export function validateRequiredFields<T extends Record<string, unknown>>(
  */
 export function safeObjectAccess<T>(
   accessor: () => T,
-  defaultValue?: T
+  defaultValue?: T,
 ): SafeAccessResult<T> {
   try {
     const result = accessor();
     return {
       success: true,
-      data: result
+      data: result,
     };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
-      data: defaultValue
+      data: defaultValue,
     };
   }
 }

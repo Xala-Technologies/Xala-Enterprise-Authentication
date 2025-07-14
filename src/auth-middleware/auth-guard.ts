@@ -19,7 +19,7 @@ import type {
 export class AuthGuard implements AuthenticationGuard {
   readonly name: string = 'auth-guard';
   readonly middleware: AuthMiddleware;
-  
+
   private readonly options: GuardOptions;
   private readonly tokenExtractor: TokenExtractor;
   private readonly sessionValidator: SessionValidator;
@@ -27,7 +27,7 @@ export class AuthGuard implements AuthenticationGuard {
   constructor(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: GuardOptions = {}
+    options: GuardOptions = {},
   ) {
     this.tokenExtractor = tokenExtractor;
     this.sessionValidator = sessionValidator;
@@ -40,7 +40,11 @@ export class AuthGuard implements AuthenticationGuard {
   }
 
   private createMiddleware(): AuthMiddleware {
-    return async (req: AuthRequest, res: AuthResponse, next: NextFunction): Promise<void> => {
+    return async (
+      req: AuthRequest,
+      res: AuthResponse,
+      next: NextFunction,
+    ): Promise<void> => {
       try {
         // Skip for public routes if configured
         if (this.options.skipOnPublicRoutes && this.isPublicRoute(req.path)) {
@@ -50,13 +54,21 @@ export class AuthGuard implements AuthenticationGuard {
         // Extract token
         const token = this.tokenExtractor.extract(req);
         if (!token) {
-          return this.handleUnauthorized(req, res, 'No authentication token provided');
+          return this.handleUnauthorized(
+            req,
+            res,
+            'No authentication token provided',
+          );
         }
 
         // Validate session
         const context = await this.sessionValidator.validate(token);
         if (!context) {
-          return this.handleUnauthorized(req, res, 'Invalid or expired session');
+          return this.handleUnauthorized(
+            req,
+            res,
+            'Invalid or expired session',
+          );
         }
 
         // Check if guard allows access
@@ -78,7 +90,11 @@ export class AuthGuard implements AuthenticationGuard {
     };
   }
 
-  private handleUnauthorized(_req: AuthRequest, res: AuthResponse, message: string): void {
+  private handleUnauthorized(
+    _req: AuthRequest,
+    res: AuthResponse,
+    message: string,
+  ): void {
     if (this.options.failureRedirect) {
       res.status(302);
       res.setHeader('Location', this.options.failureRedirect);
@@ -102,13 +118,13 @@ export class AuthGuard implements AuthenticationGuard {
       '/api/v1/public',
     ];
 
-    return publicRoutes.some(route => path.startsWith(route));
+    return publicRoutes.some((route) => path.startsWith(route));
   }
 
   static create(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options?: GuardOptions
+    options?: GuardOptions,
   ): AuthGuard {
     return new AuthGuard(tokenExtractor, sessionValidator, options);
   }

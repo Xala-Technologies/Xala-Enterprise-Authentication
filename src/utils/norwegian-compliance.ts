@@ -7,10 +7,10 @@ import type { NSMClassification } from '../types/index.js';
 
 // NSM Classification levels mapping
 export const NSMClassificationLevels: Record<NSMClassification, number> = {
-  'OPEN': 0,
-  'RESTRICTED': 1,
-  'CONFIDENTIAL': 2,
-  'SECRET': 3
+  OPEN: 0,
+  RESTRICTED: 1,
+  CONFIDENTIAL: 2,
+  SECRET: 3,
 };
 
 /**
@@ -18,11 +18,11 @@ export const NSMClassificationLevels: Record<NSMClassification, number> = {
  */
 export function validateNSMClassification(
   userLevel: NSMClassification,
-  requiredLevel: NSMClassification
+  requiredLevel: NSMClassification,
 ): boolean {
   const userLevelValue = NSMClassificationLevels[userLevel];
   const requiredLevelValue = NSMClassificationLevels[requiredLevel];
-  
+
   return userLevelValue >= requiredLevelValue;
 }
 
@@ -31,29 +31,31 @@ export function validateNSMClassification(
  */
 export function getMostRestrictiveClassification(
   level1: NSMClassification,
-  level2: NSMClassification
+  level2: NSMClassification,
 ): NSMClassification {
   const level1Value = NSMClassificationLevels[level1];
   const level2Value = NSMClassificationLevels[level2];
-  
+
   const highestValue = Math.max(level1Value, level2Value);
-  
+
   return Object.keys(NSMClassificationLevels).find(
-    (key) => NSMClassificationLevels[key as NSMClassification] === highestValue
+    (key) => NSMClassificationLevels[key as NSMClassification] === highestValue,
   ) as NSMClassification;
 }
 
 /**
  * Validate Norwegian personal number (11 digits)
  */
-export function validateNorwegianPersonalNumber(personalNumber: string): boolean {
+export function validateNorwegianPersonalNumber(
+  personalNumber: string,
+): boolean {
   if (typeof personalNumber !== 'string') {
     return false;
   }
 
   // Remove any spaces or hyphens
   const cleaned = personalNumber.replace(/[\s-]/g, '');
-  
+
   // Must be exactly 11 digits
   if (!/^\d{11}$/.test(cleaned)) {
     return false;
@@ -65,14 +67,20 @@ export function validateNorwegianPersonalNumber(personalNumber: string): boolean
   const weights2 = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
 
   // First check digit
-  const sum1 = weights1.reduce((sum, weight, index) => sum + weight * digits[index]!, 0);
+  const sum1 = weights1.reduce(
+    (sum, weight, index) => sum + weight * digits[index]!,
+    0,
+  );
   const check1 = (11 - (sum1 % 11)) % 11;
   if (check1 === 10 || check1 !== digits[9]) {
     return false;
   }
 
   // Second check digit
-  const sum2 = weights2.reduce((sum, weight, index) => sum + weight * digits[index]!, 0);
+  const sum2 = weights2.reduce(
+    (sum, weight, index) => sum + weight * digits[index]!,
+    0,
+  );
   const check2 = (11 - (sum2 % 11)) % 11;
   if (check2 === 10 || check2 !== digits[10]) {
     return false;
@@ -91,15 +99,17 @@ export function validateNorwegianPhoneNumber(phoneNumber: string): boolean {
 
   // Remove spaces, hyphens, and plus signs
   const cleaned = phoneNumber.replace(/[\s\-+]/g, '');
-  
+
   // Norwegian phone number patterns:
   // - 8 digits starting with 4, 5, 9 (mobile)
   // - 8 digits starting with 2, 3, 5, 6, 7 (landline)
   // - Can be prefixed with country code 47
-  
+
   // Remove country code if present
-  const withoutCountryCode = cleaned.startsWith('47') ? cleaned.slice(2) : cleaned;
-  
+  const withoutCountryCode = cleaned.startsWith('47')
+    ? cleaned.slice(2)
+    : cleaned;
+
   // Must be exactly 8 digits
   if (!/^\d{8}$/.test(withoutCountryCode)) {
     return false;
@@ -127,13 +137,13 @@ export function validateNorwegianPostalCode(postalCode: string): boolean {
  */
 export function checkNSMClassificationAccess(
   userClassification: NSMClassification,
-  requiredClassification: NSMClassification
+  requiredClassification: NSMClassification,
 ): boolean {
   const classificationLevels: Record<NSMClassification, number> = {
-    'OPEN': 0,
-    'RESTRICTED': 1,
-    'CONFIDENTIAL': 2,
-    'SECRET': 3
+    OPEN: 0,
+    RESTRICTED: 1,
+    CONFIDENTIAL: 2,
+    SECRET: 3,
   };
 
   const userLevel = classificationLevels[userClassification];
@@ -145,13 +155,19 @@ export function checkNSMClassificationAccess(
 /**
  * Get NSM classification level from string
  */
-export function parseNSMClassification(classification: string): NSMClassification {
+export function parseNSMClassification(
+  classification: string,
+): NSMClassification {
   const upperClassification = classification.toUpperCase();
-  
-  if (['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'].includes(upperClassification)) {
+
+  if (
+    ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'].includes(
+      upperClassification,
+    )
+  ) {
     return upperClassification as NSMClassification;
   }
-  
+
   // Default to OPEN for invalid classifications
   return 'OPEN';
 }
@@ -159,14 +175,16 @@ export function parseNSMClassification(classification: string): NSMClassificatio
 /**
  * Validate Norwegian organization number (9 digits)
  */
-export function validateNorwegianOrganizationNumber(orgNumber: string): boolean {
+export function validateNorwegianOrganizationNumber(
+  orgNumber: string,
+): boolean {
   if (typeof orgNumber !== 'string') {
     return false;
   }
 
   // Remove any spaces
   const cleaned = orgNumber.replace(/\s/g, '');
-  
+
   // Must be exactly 9 digits
   if (!/^\d{9}$/.test(cleaned)) {
     return false;
@@ -176,7 +194,10 @@ export function validateNorwegianOrganizationNumber(orgNumber: string): boolean 
   const digits = cleaned.split('').map(Number);
   const weights = [3, 2, 7, 6, 5, 4, 3, 2];
 
-  const sum = weights.reduce((total, weight, index) => total + weight * digits[index]!, 0);
+  const sum = weights.reduce(
+    (total, weight, index) => total + weight * digits[index]!,
+    0,
+  );
   const remainder = sum % 11;
   const checkDigit = remainder === 0 ? 0 : 11 - remainder;
 
@@ -204,8 +225,10 @@ export function formatNorwegianPhoneNumber(phoneNumber: string): string {
   }
 
   const cleaned = phoneNumber.replace(/[\s\-+]/g, '');
-  const withoutCountryCode = cleaned.startsWith('47') ? cleaned.slice(2) : cleaned;
-  
+  const withoutCountryCode = cleaned.startsWith('47')
+    ? cleaned.slice(2)
+    : cleaned;
+
   return `+47 ${withoutCountryCode.slice(0, 3)} ${withoutCountryCode.slice(3, 5)} ${withoutCountryCode.slice(5)}`;
 }
 
@@ -225,7 +248,7 @@ export interface ComplianceReport {
   };
   readonly wcag: {
     compliant: boolean;
-    level: "A" | "AA" | "AAA";
+    level: 'A' | 'AA' | 'AAA';
   };
   readonly language: {
     compliant: boolean;
@@ -244,20 +267,25 @@ export interface ComplianceReport {
 export function generateComplianceReport(config: {
   nsmClassification: NSMClassification;
   gdprCompliant: boolean;
-  wcagLevel: "A" | "AA" | "AAA";
+  wcagLevel: 'A' | 'AA' | 'AAA';
   supportedLanguages: readonly string[];
   auditTrail: boolean;
 }): ComplianceReport {
-  const nsmCompliant = ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'].includes(config.nsmClassification);
+  const nsmCompliant = [
+    'OPEN',
+    'RESTRICTED',
+    'CONFIDENTIAL',
+    'SECRET',
+  ].includes(config.nsmClassification);
   const gdprIssues: string[] = [];
   const languageIssues: string[] = [];
 
   if (!config.gdprCompliant) {
-    gdprIssues.push("GDPR compliance is not enabled");
+    gdprIssues.push('GDPR compliance is not enabled');
   }
 
   if (!config.auditTrail) {
-    gdprIssues.push("Audit trail is required for GDPR compliance");
+    gdprIssues.push('Audit trail is required for GDPR compliance');
   }
 
   const requiredLanguages = ['nb-NO', 'en-US'];
@@ -271,11 +299,11 @@ export function generateComplianceReport(config: {
     nsmCompliant,
     gdprIssues.length === 0,
     true, // WCAG assumed compliant for now
-    languageIssues.length === 0
+    languageIssues.length === 0,
   ];
 
   const score = Math.round(
-    (complianceAreas.filter(Boolean).length / complianceAreas.length) * 100
+    (complianceAreas.filter(Boolean).length / complianceAreas.length) * 100,
   );
 
   return {
@@ -283,24 +311,26 @@ export function generateComplianceReport(config: {
     nsm: {
       compliant: nsmCompliant,
       classification: config.nsmClassification,
-      issues: nsmCompliant ? [] : [`Invalid NSM classification: ${config.nsmClassification}`]
+      issues: nsmCompliant
+        ? []
+        : [`Invalid NSM classification: ${config.nsmClassification}`],
     },
     gdpr: {
       compliant: gdprIssues.length === 0,
-      issues: gdprIssues
+      issues: gdprIssues,
     },
     wcag: {
       compliant: true,
-      level: config.wcagLevel
+      level: config.wcagLevel,
     },
     language: {
       compliant: languageIssues.length === 0,
       supported: config.supportedLanguages,
-      issues: languageIssues
+      issues: languageIssues,
     },
     overall: {
       compliant: complianceAreas.every(Boolean),
-      score
-    }
+      score,
+    },
   };
 }

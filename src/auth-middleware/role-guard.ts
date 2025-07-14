@@ -4,6 +4,7 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import { AuthGuard } from './auth-guard.js';
 import type {
   AuthenticationGuard,
   AuthContext,
@@ -11,7 +12,6 @@ import type {
   TokenExtractor,
   SessionValidator,
 } from './types.js';
-import { AuthGuard } from './auth-guard.js';
 
 export class RoleGuard extends AuthGuard implements AuthenticationGuard {
   override readonly name: string = 'role-guard';
@@ -21,7 +21,7 @@ export class RoleGuard extends AuthGuard implements AuthenticationGuard {
   constructor(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: RoleGuardOptions
+    options: RoleGuardOptions,
   ) {
     super(tokenExtractor, sessionValidator, options);
     this.requiredRoles = options.roles;
@@ -36,20 +36,20 @@ export class RoleGuard extends AuthGuard implements AuthenticationGuard {
     }
 
     const userRoles = context.user?.roles ?? [];
-    
+
     if (this.requireAll) {
       // User must have all required roles
-      return this.requiredRoles.every(role => userRoles.includes(role));
+      return this.requiredRoles.every((role) => userRoles.includes(role));
     } else {
       // User must have at least one required role
-      return this.requiredRoles.some(role => userRoles.includes(role));
+      return this.requiredRoles.some((role) => userRoles.includes(role));
     }
   }
 
   static override create(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: RoleGuardOptions
+    options: RoleGuardOptions,
   ): RoleGuard {
     return new RoleGuard(tokenExtractor, sessionValidator, options);
   }
@@ -60,9 +60,15 @@ export class RoleGuard extends AuthGuard implements AuthenticationGuard {
  */
 export function requireRoles(
   roles: string[],
-  options?: Partial<RoleGuardOptions>
-): (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator) => RoleGuard {
-  return (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard => {
+  options?: Partial<RoleGuardOptions>,
+): (
+  tokenExtractor: TokenExtractor,
+  sessionValidator: SessionValidator,
+) => RoleGuard {
+  return (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): RoleGuard => {
     return RoleGuard.create(tokenExtractor, sessionValidator, {
       ...options,
       roles,
@@ -77,7 +83,10 @@ export const RoleGuards = {
   /**
    * Require admin role
    */
-  requireAdmin: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
+  requireAdmin: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['admin'],
       failureMessage: 'Admin access required',
@@ -86,7 +95,10 @@ export const RoleGuards = {
   /**
    * Require user role
    */
-  requireUser: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
+  requireUser: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['user'],
       failureMessage: 'User access required',
@@ -95,7 +107,10 @@ export const RoleGuards = {
   /**
    * Require citizen role (Norwegian government context)
    */
-  requireCitizen: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
+  requireCitizen: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['citizen'],
       failureMessage: 'Citizen access required',
@@ -104,7 +119,10 @@ export const RoleGuards = {
   /**
    * Require government employee role
    */
-  requireGovernmentEmployee: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): RoleGuard =>
+  requireGovernmentEmployee: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): RoleGuard =>
     RoleGuard.create(tokenExtractor, sessionValidator, {
       roles: ['government_employee'],
       failureMessage: 'Government employee access required',

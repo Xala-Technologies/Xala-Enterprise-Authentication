@@ -5,6 +5,10 @@
  */
 
 import { randomBytes, createHash } from 'crypto';
+
+import type { UserProfile } from '../types/index.js';
+import { isValidNorwegianPersonalNumber } from '../utils/type-safety.js';
+
 import type {
   AuthenticationProvider,
   AuthenticationCredentials,
@@ -13,8 +17,6 @@ import type {
   NorwegianIDCredentials,
   NorwegianIDProviderConfig,
 } from './types.js';
-import type { UserProfile } from '../types/index.js';
-import { isValidNorwegianPersonalNumber } from '../utils/type-safety.js';
 
 export class NorwegianIDProvider implements AuthenticationProvider {
   readonly id: string;
@@ -23,7 +25,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
   readonly enabled: boolean;
   readonly nsmClassification;
   readonly supportedLanguages = ['nb-NO', 'nn-NO', 'en-US'] as const;
-  
+
   private readonly config: NorwegianIDProviderConfig;
   private initialized = false;
 
@@ -41,7 +43,11 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     }
 
     // Validate configuration
-    if (!this.config.bankIdConfig && !this.config.buypassConfig && !this.config.commfidesConfig) {
+    if (
+      !this.config.bankIdConfig &&
+      !this.config.buypassConfig &&
+      !this.config.commfidesConfig
+    ) {
       throw new Error('At least one Norwegian ID provider must be configured');
     }
 
@@ -50,11 +56,13 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     // 2. Fetch OpenID configuration
     // 3. Validate certificates
     // 4. Setup JWKS endpoints
-    
+
     this.initialized = true;
   }
 
-  async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationProviderResult> {
+  async authenticate(
+    credentials: AuthenticationCredentials,
+  ): Promise<AuthenticationProviderResult> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -101,7 +109,11 @@ export class NorwegianIDProvider implements AuthenticationProvider {
         nsmClassification: 'RESTRICTED',
         metadata: {
           provider: this.id,
-          authMethod: credentials.bankId ? 'bankid' : credentials.buypass ? 'buypass' : 'commfides',
+          authMethod: credentials.bankId
+            ? 'bankid'
+            : credentials.buypass
+              ? 'buypass'
+              : 'commfides',
           authLevel: 4, // Norwegian authentication level
         },
       };
@@ -142,7 +154,9 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     return Promise.resolve();
   }
 
-  async validateCredentials(credentials: AuthenticationCredentials): Promise<boolean> {
+  async validateCredentials(
+    credentials: AuthenticationCredentials,
+  ): Promise<boolean> {
     if (!this.isNorwegianIDCredentials(credentials)) {
       return false;
     }
@@ -156,10 +170,14 @@ export class NorwegianIDProvider implements AuthenticationProvider {
     return null;
   }
 
-  private isNorwegianIDCredentials(credentials: AuthenticationCredentials): credentials is NorwegianIDCredentials {
-    return credentials.type === 'norwegian-id' && 
-           'personalNumber' in credentials &&
-           typeof credentials.personalNumber === 'string';
+  private isNorwegianIDCredentials(
+    credentials: AuthenticationCredentials,
+  ): credentials is NorwegianIDCredentials {
+    return (
+      credentials.type === 'norwegian-id' &&
+      'personalNumber' in credentials &&
+      typeof credentials.personalNumber === 'string'
+    );
   }
 
   private generateUserId(personalNumber: string): string {
@@ -178,7 +196,7 @@ export class NorwegianIDProvider implements AuthenticationProvider {
       provider: this.id,
       nonce: randomBytes(16).toString('hex'),
     };
-    
+
     return Buffer.from(JSON.stringify(payload)).toString('base64');
   }
 

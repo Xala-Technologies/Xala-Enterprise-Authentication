@@ -5,8 +5,9 @@
  */
 
 import React from 'react';
-import type { NorwegianIDButtonProps } from '../types.js';
+
 import { useNorwegianCompliance } from '../hooks/useNorwegianCompliance.js';
+import type { NorwegianIDButtonProps } from '../types.js';
 
 export function NorwegianIDButton({
   provider,
@@ -75,10 +76,12 @@ export function NorwegianIDButton({
       onClick={handleClick}
       disabled={disabled}
       className={`norwegian-id-button ${sizeClasses[size]} ${className}`}
-      style={{
-        '--primary-color': providerInfo.colors.primary,
-        '--hover-color': providerInfo.colors.hover,
-      } as React.CSSProperties}
+      style={
+        {
+          '--primary-color': providerInfo.colors.primary,
+          '--hover-color': providerInfo.colors.hover,
+        } as React.CSSProperties
+      }
       aria-label={getButtonText()}
     >
       <img

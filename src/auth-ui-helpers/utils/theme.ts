@@ -21,7 +21,8 @@ export const norwegianTheme: AuthTheme = {
   },
   fonts: {
     body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    heading: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    heading:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   },
   borderRadius: '4px',
   spacing: {
@@ -65,19 +66,19 @@ export const highContrastTheme: AuthTheme = {
  */
 export function applyTheme(theme: AuthTheme): void {
   const root = document.documentElement;
-  
+
   // Colors
   Object.entries(theme.colors).forEach(([key, value]) => {
     root.style.setProperty(`--auth-color-${key}`, value);
   });
-  
+
   // Fonts
   root.style.setProperty('--auth-font-body', theme.fonts.body);
   root.style.setProperty('--auth-font-heading', theme.fonts.heading);
-  
+
   // Border radius
   root.style.setProperty('--auth-border-radius', theme.borderRadius);
-  
+
   // Spacing
   Object.entries(theme.spacing).forEach(([key, value]) => {
     root.style.setProperty(`--auth-spacing-${key}`, value);

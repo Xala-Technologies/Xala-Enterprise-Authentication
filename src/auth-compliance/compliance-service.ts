@@ -4,6 +4,9 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import { DefaultComplianceAuditor } from './compliance-auditor.js';
+import { DefaultGDPRComplianceManager } from './gdpr-compliance-manager.js';
+import { DefaultNSMComplianceManager } from './nsm-compliance-manager.js';
 import type {
   ComplianceService,
   GDPRComplianceManager,
@@ -15,9 +18,6 @@ import type {
   ComplianceReport,
   ComplianceIssue,
 } from './types.js';
-import { DefaultGDPRComplianceManager } from './gdpr-compliance-manager.js';
-import { DefaultNSMComplianceManager } from './nsm-compliance-manager.js';
-import { DefaultComplianceAuditor } from './compliance-auditor.js';
 
 export class DefaultComplianceService implements ComplianceService {
   readonly gdpr: GDPRComplianceManager;
@@ -31,10 +31,13 @@ export class DefaultComplianceService implements ComplianceService {
   }) {
     this.gdpr = config?.gdprManager ?? DefaultGDPRComplianceManager.create();
     this.nsm = config?.nsmManager ?? DefaultNSMComplianceManager.create();
-    this.auditor = config?.auditor ?? DefaultComplianceAuditor.create(this.gdpr, this.nsm);
+    this.auditor =
+      config?.auditor ?? DefaultComplianceAuditor.create(this.gdpr, this.nsm);
   }
 
-  async performAudit(request: ComplianceAuditRequest): Promise<ComplianceAuditResult> {
+  async performAudit(
+    request: ComplianceAuditRequest,
+  ): Promise<ComplianceAuditResult> {
     return this.auditor.audit(request);
   }
 
@@ -42,41 +45,44 @@ export class DefaultComplianceService implements ComplianceService {
     // Check both GDPR and NSM compliance
     const gdprCompliant = await this.gdpr.checkCompliance();
     const nsmCompliant = await this.nsm.checkCompliance();
-    
+
     // Get audit history
     const history = await this.auditor.getAuditHistory(1);
     const lastAudit = history[0]?.timestamp ?? new Date(0);
-    
+
     // Get next scheduled audit
-    const nextAudit = await this.auditor.getNextScheduledAudit() ?? 
+    const nextAudit =
+      (await this.auditor.getNextScheduledAudit()) ??
       new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // Default 90 days
-    
+
     // Count issues from reports
     const gdprReport = await this.gdpr.getComplianceReport();
     const nsmReport = await this.nsm.getComplianceReport();
-    
+
     const allIssues = [...gdprReport.issues, ...nsmReport.issues];
-    
+
     return {
       gdprCompliant,
       nsmCompliant,
       lastAudit,
       nextAudit,
-      criticalIssues: allIssues.filter(i => i.severity === 'CRITICAL').length,
-      highIssues: allIssues.filter(i => i.severity === 'HIGH').length,
-      mediumIssues: allIssues.filter(i => i.severity === 'MEDIUM').length,
-      lowIssues: allIssues.filter(i => i.severity === 'LOW').length,
+      criticalIssues: allIssues.filter((i) => i.severity === 'CRITICAL').length,
+      highIssues: allIssues.filter((i) => i.severity === 'HIGH').length,
+      mediumIssues: allIssues.filter((i) => i.severity === 'MEDIUM').length,
+      lowIssues: allIssues.filter((i) => i.severity === 'LOW').length,
     };
   }
 
-  async exportComplianceReport(format: 'json' | 'pdf' | 'html'): Promise<Uint8Array> {
+  async exportComplianceReport(
+    format: 'json' | 'pdf' | 'html',
+  ): Promise<Uint8Array> {
     // Gather all compliance data
     const status = await this.getComplianceStatus();
     const gdprReport = await this.gdpr.getComplianceReport();
     const nsmReport = await this.nsm.getComplianceReport();
     const privacyNotice = await this.gdpr.generatePrivacyNotice();
     const securityReport = await this.nsm.generateSecurityReport();
-    
+
     const report: ComplianceReport = {
       id: `report-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       generatedAt: new Date(),
@@ -88,18 +94,18 @@ export class DefaultComplianceService implements ComplianceService {
       controls: [],
       recommendations: [],
     };
-    
+
     switch (format) {
       case 'json':
         return new TextEncoder().encode(JSON.stringify(report, null, 2));
-      
+
       case 'html':
         return new TextEncoder().encode(this.generateHTMLReport(report));
-      
+
       case 'pdf':
         // In production, use a PDF generation library
         throw new Error('PDF export not implemented. Use JSON or HTML format.');
-      
+
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
@@ -107,14 +113,17 @@ export class DefaultComplianceService implements ComplianceService {
 
   private generateHTMLReport(report: ComplianceReport): string {
     // Calculate compliance status from the report data
-    const gdprCompliant = report.compliance['gdpr'] ?? false;
-    const nsmCompliant = report.compliance['nsm'] ?? false;
-    
+    const gdprCompliant = report.compliance.gdpr ?? false;
+    const nsmCompliant = report.compliance.nsm ?? false;
+
     // Count issues by severity
-    const issueCounts = report.issues.reduce((counts, issue) => {
-      counts[issue.severity] = (counts[issue.severity] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
+    const issueCounts = report.issues.reduce<Record<string, number>>(
+      (counts, issue) => {
+        counts[issue.severity] = (counts[issue.severity] || 0) + 1;
+        return counts;
+      },
+      {},
+    );
 
     return `
 <!DOCTYPE html>
@@ -153,19 +162,19 @@ export class DefaultComplianceService implements ComplianceService {
       </tr>
       <tr>
         <td>Critical</td>
-        <td>${issueCounts['CRITICAL'] || 0}</td>
+        <td>${issueCounts.CRITICAL || 0}</td>
       </tr>
       <tr>
         <td>High</td>
-        <td>${issueCounts['HIGH'] || 0}</td>
+        <td>${issueCounts.HIGH || 0}</td>
       </tr>
       <tr>
         <td>Medium</td>
-        <td>${issueCounts['MEDIUM'] || 0}</td>
+        <td>${issueCounts.MEDIUM || 0}</td>
       </tr>
       <tr>
         <td>Low</td>
-        <td>${issueCounts['LOW'] || 0}</td>
+        <td>${issueCounts.LOW || 0}</td>
       </tr>
     </table>
   </div>
@@ -193,21 +202,27 @@ export class DefaultComplianceService implements ComplianceService {
     if (issues.length === 0) {
       return '<p>No compliance issues found.</p>';
     }
-    
+
     return `
       <h3>Issues</h3>
-      ${issues.map(issue => `
+      ${issues
+    .map(
+      (issue) => `
         <div class="issue ${issue.severity.toLowerCase()}">
           <strong>${issue.category}</strong>: ${issue.description}
           <br>
           <em>Recommendation:</em> ${issue.recommendation}
           ${issue.reference ? `<br><small>Reference: ${issue.reference}</small>` : ''}
         </div>
-      `).join('')}
+      `,
+    )
+    .join('')}
     `;
   }
 
-  private generateControlsHTML(controls: readonly import('./types.js').SecurityControl[]): string {
+  private generateControlsHTML(
+    controls: readonly import('./types.js').SecurityControl[],
+  ): string {
     return `
     <table>
       <tr>
@@ -216,19 +231,25 @@ export class DefaultComplianceService implements ComplianceService {
         <th>Status</th>
         <th>Effectiveness</th>
       </tr>
-      ${controls.map(control => `
+      ${controls
+    .map(
+      (control) => `
         <tr>
           <td>${control.name}</td>
           <td>${control.category}</td>
           <td>${control.implemented ? 'Implemented' : 'Not Implemented'}</td>
-          <td>${control.effectiveness ? control.effectiveness + '%' : 'N/A'}</td>
+          <td>${control.effectiveness ? `${control.effectiveness }%` : 'N/A'}</td>
         </tr>
-      `).join('')}
+      `,
+    )
+    .join('')}
     </table>
     `;
   }
 
-  private generateRecommendationsHTML(recommendations: readonly import('./types.js').ComplianceRecommendation[]): string {
+  private generateRecommendationsHTML(
+    recommendations: readonly import('./types.js').ComplianceRecommendation[],
+  ): string {
     return `
     <table>
       <tr>
@@ -238,7 +259,9 @@ export class DefaultComplianceService implements ComplianceService {
         <th>Effort</th>
         <th>Impact</th>
       </tr>
-      ${recommendations.map(rec => `
+      ${recommendations
+    .map(
+      (rec) => `
         <tr>
           <td>${rec.priority}</td>
           <td>${rec.category}</td>
@@ -246,7 +269,9 @@ export class DefaultComplianceService implements ComplianceService {
           <td>${rec.effort}</td>
           <td>${rec.impact}</td>
         </tr>
-      `).join('')}
+      `,
+    )
+    .join('')}
     </table>
     `;
   }

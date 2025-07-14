@@ -4,6 +4,8 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import type { NSMClassification } from '../types/index.js';
+
 import type {
   ComplianceAuditor,
   ComplianceAuditRequest,
@@ -16,43 +18,55 @@ import type {
   NSMComplianceManager,
   SecurityControl,
 } from './types.js';
-import type { NSMClassification } from '../types/index.js';
 
 export class DefaultComplianceAuditor implements ComplianceAuditor {
   private readonly auditHistory: ComplianceAuditResult[] = [];
-  private readonly scheduledAudits: Map<string, { request: ComplianceAuditRequest; date: Date }> = new Map();
-  
+  private readonly scheduledAudits: Map<
+    string,
+    { request: ComplianceAuditRequest; date: Date }
+  > = new Map();
+
   constructor(
     private readonly gdprManager: GDPRComplianceManager,
-    private readonly nsmManager: NSMComplianceManager
+    private readonly nsmManager: NSMComplianceManager,
   ) {}
 
   async audit(request: ComplianceAuditRequest): Promise<ComplianceAuditResult> {
     const auditId = `audit-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const timestamp = new Date();
-    
+
     let gdprResult;
     let nsmResult;
-    
+
     // Perform GDPR audit if requested
     if (request.scope === 'gdpr' || request.scope === 'both') {
       gdprResult = await this.performGDPRAudit(request);
     }
-    
+
     // Perform NSM audit if requested
     if (request.scope === 'nsm' || request.scope === 'both') {
       nsmResult = await this.performNSMAudit(request);
     }
-    
+
     // Determine overall compliance
-    const overallCompliant = this.determineOverallCompliance(gdprResult, nsmResult);
-    
+    const overallCompliant = this.determineOverallCompliance(
+      gdprResult,
+      nsmResult,
+    );
+
     // Generate recommendations
-    const recommendations = await this.generateRecommendations(gdprResult, nsmResult, request);
-    
+    const recommendations = await this.generateRecommendations(
+      gdprResult,
+      nsmResult,
+      request,
+    );
+
     // Calculate next audit date
-    const nextAuditDate = this.calculateNextAuditDate(overallCompliant, request.classification);
-    
+    const nextAuditDate = this.calculateNextAuditDate(
+      overallCompliant,
+      request.classification,
+    );
+
     const result: ComplianceAuditResult = {
       id: auditId,
       timestamp,
@@ -63,26 +77,31 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
       recommendations,
       nextAuditDate,
     };
-    
+
     // Store in history
     this.auditHistory.push(result);
-    
+
     // Limit history size
     if (this.auditHistory.length > 100) {
       this.auditHistory.shift();
     }
-    
+
     return result;
   }
 
-  async scheduleAudit(request: ComplianceAuditRequest, date: Date): Promise<string> {
+  async scheduleAudit(
+    request: ComplianceAuditRequest,
+    date: Date,
+  ): Promise<string> {
     const scheduleId = `schedule-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    
+
     this.scheduledAudits.set(scheduleId, { request, date });
-    
+
     // In a real implementation, this would integrate with a job scheduler
-    console.log(`Audit scheduled with ID ${scheduleId} for ${date.toISOString()}`);
-    
+    console.log(
+      `Audit scheduled with ID ${scheduleId} for ${date.toISOString()}`,
+    );
+
     return scheduleId;
   }
 
@@ -94,7 +113,7 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
   async getNextScheduledAudit(): Promise<Date | null> {
     const now = new Date();
     let nextDate: Date | null = null;
-    
+
     for (const [, schedule] of this.scheduledAudits) {
       if (schedule.date > now) {
         if (!nextDate || schedule.date < nextDate) {
@@ -102,16 +121,18 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
         }
       }
     }
-    
+
     return nextDate;
   }
 
-  private async performGDPRAudit(request: ComplianceAuditRequest): Promise<GDPRComplianceResult> {
+  private async performGDPRAudit(
+    request: ComplianceAuditRequest,
+  ): Promise<GDPRComplianceResult> {
     const compliant = await this.gdprManager.checkCompliance();
     const rights = await this.gdprManager.checkDataSubjectRights();
     const issues = [];
     const dataCategories = [];
-    
+
     // Check data types for GDPR compliance
     for (const dataType of request.dataTypes) {
       const legalBasis = await this.gdprManager.checkLegalBasis(dataType);
@@ -124,7 +145,7 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
           recommendation: 'Establish legal basis before processing',
         });
       }
-      
+
       dataCategories.push({
         name: dataType,
         type: this.categorizeDataType(dataType),
@@ -133,7 +154,7 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
         minimizationApplied: true,
       });
     }
-    
+
     return {
       compliant,
       issues,
@@ -145,13 +166,17 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
     };
   }
 
-  private async performNSMAudit(request: ComplianceAuditRequest): Promise<NSMComplianceResult> {
+  private async performNSMAudit(
+    request: ComplianceAuditRequest,
+  ): Promise<NSMComplianceResult> {
     const compliant = await this.nsmManager.checkCompliance();
-    const requiredControls = await this.nsmManager.getRequiredControls(request.classification);
-    const implementedControls = requiredControls.filter(c => c.implemented);
-    const missingControls = requiredControls.filter(c => !c.implemented);
+    const requiredControls = await this.nsmManager.getRequiredControls(
+      request.classification,
+    );
+    const implementedControls = requiredControls.filter((c) => c.implemented);
+    const missingControls = requiredControls.filter((c) => !c.implemented);
     const riskLevel = await this.nsmManager.assessRiskLevel();
-    
+
     return {
       compliant,
       classification: request.classification,
@@ -163,19 +188,22 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
     };
   }
 
-  private determineOverallCompliance(gdprResult?: GDPRComplianceResult, nsmResult?: NSMComplianceResult): boolean {
-    if (gdprResult && !gdprResult.compliant) return false;
-    if (nsmResult && !nsmResult.compliant) return false;
+  private determineOverallCompliance(
+    gdprResult?: GDPRComplianceResult,
+    nsmResult?: NSMComplianceResult,
+  ): boolean {
+    if (gdprResult && !gdprResult.compliant) { return false; }
+    if (nsmResult && !nsmResult.compliant) { return false; }
     return true;
   }
 
   private async generateRecommendations(
     gdprResult: GDPRComplianceResult | undefined,
     nsmResult: NSMComplianceResult | undefined,
-    request: ComplianceAuditRequest
+    request: ComplianceAuditRequest,
   ): Promise<ComplianceRecommendation[]> {
     const recommendations = [];
-    
+
     // GDPR recommendations
     if (gdprResult?.issues && gdprResult.issues.length > 0) {
       recommendations.push({
@@ -187,13 +215,14 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
         deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       });
     }
-    
+
     // NSM recommendations
     if (nsmResult?.missingControls && nsmResult.missingControls.length > 0) {
-      const criticalControls = nsmResult.missingControls.filter((c: SecurityControl) => 
-        c.category === 'encryption' || c.category === 'access_control'
+      const criticalControls = nsmResult.missingControls.filter(
+        (c: SecurityControl) =>
+          c.category === 'encryption' || c.category === 'access_control',
       );
-      
+
       if (criticalControls.length > 0) {
         recommendations.push({
           priority: 'CRITICAL' as const,
@@ -205,9 +234,12 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
         });
       }
     }
-    
+
     // Risk-based recommendations
-    if (nsmResult?.riskLevel === 'HIGH' || nsmResult?.riskLevel === 'CRITICAL') {
+    if (
+      nsmResult?.riskLevel === 'HIGH' ||
+      nsmResult?.riskLevel === 'CRITICAL'
+    ) {
       recommendations.push({
         priority: 'HIGH' as const,
         category: 'Risk Management',
@@ -216,7 +248,7 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
         impact: 'HIGH' as const,
       });
     }
-    
+
     // Regular audit recommendation
     if (request.includeRecommendations) {
       recommendations.push({
@@ -227,13 +259,16 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
         impact: 'MEDIUM' as const,
       });
     }
-    
+
     return recommendations;
   }
 
-  private calculateNextAuditDate(compliant: boolean, classification: NSMClassification): Date {
+  private calculateNextAuditDate(
+    compliant: boolean,
+    classification: NSMClassification,
+  ): Date {
     const baseInterval = compliant ? 90 : 30; // days
-    
+
     // Adjust based on classification
     let interval = baseInterval;
     switch (classification) {
@@ -249,22 +284,28 @@ export class DefaultComplianceAuditor implements ComplianceAuditor {
       default:
         interval = 180;
     }
-    
+
     return new Date(Date.now() + interval * 24 * 60 * 60 * 1000);
   }
 
-  private categorizeDataType(dataType: string): 'personal' | 'sensitive' | 'special' {
-    const sensitiveTypes = ['norwegianPersonalNumber', 'healthData', 'biometric'];
+  private categorizeDataType(
+    dataType: string,
+  ): 'personal' | 'sensitive' | 'special' {
+    const sensitiveTypes = [
+      'norwegianPersonalNumber',
+      'healthData',
+      'biometric',
+    ];
     const specialTypes = ['ethnicity', 'politicalOpinions', 'religiousBeliefs'];
-    
-    if (specialTypes.includes(dataType)) return 'special';
-    if (sensitiveTypes.includes(dataType)) return 'sensitive';
+
+    if (specialTypes.includes(dataType)) { return 'special'; }
+    if (sensitiveTypes.includes(dataType)) { return 'sensitive'; }
     return 'personal';
   }
 
   static create(
     gdprManager: GDPRComplianceManager,
-    nsmManager: NSMComplianceManager
+    nsmManager: NSMComplianceManager,
   ): DefaultComplianceAuditor {
     return new DefaultComplianceAuditor(gdprManager, nsmManager);
   }

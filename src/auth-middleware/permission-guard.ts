@@ -4,6 +4,7 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import { AuthGuard } from './auth-guard.js';
 import type {
   AuthenticationGuard,
   AuthContext,
@@ -11,7 +12,6 @@ import type {
   TokenExtractor,
   SessionValidator,
 } from './types.js';
-import { AuthGuard } from './auth-guard.js';
 
 export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
   override readonly name: string = 'permission-guard';
@@ -21,7 +21,7 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
   constructor(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: PermissionGuardOptions
+    options: PermissionGuardOptions,
   ) {
     super(tokenExtractor, sessionValidator, options);
     this.requiredPermissions = options.permissions;
@@ -36,16 +36,16 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
     }
 
     const userPermissions = context.user?.permissions ?? [];
-    
+
     if (this.requireAll) {
       // User must have all required permissions
-      return this.requiredPermissions.every(permission => 
-        userPermissions.includes(permission)
+      return this.requiredPermissions.every((permission) =>
+        userPermissions.includes(permission),
       );
     } else {
       // User must have at least one required permission
-      return this.requiredPermissions.some(permission => 
-        userPermissions.includes(permission)
+      return this.requiredPermissions.some((permission) =>
+        userPermissions.includes(permission),
       );
     }
   }
@@ -53,7 +53,7 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
   static override create(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: PermissionGuardOptions
+    options: PermissionGuardOptions,
   ): PermissionGuard {
     return new PermissionGuard(tokenExtractor, sessionValidator, options);
   }
@@ -64,9 +64,15 @@ export class PermissionGuard extends AuthGuard implements AuthenticationGuard {
  */
 export function requirePermissions(
   permissions: string[],
-  options?: Partial<PermissionGuardOptions>
-): (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator) => PermissionGuard {
-  return (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard => {
+  options?: Partial<PermissionGuardOptions>,
+): (
+  tokenExtractor: TokenExtractor,
+  sessionValidator: SessionValidator,
+) => PermissionGuard {
+  return (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard => {
     return PermissionGuard.create(tokenExtractor, sessionValidator, {
       ...options,
       permissions,
@@ -81,7 +87,10 @@ export const PermissionGuards = {
   /**
    * Read permissions
    */
-  requireRead: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard =>
+  requireRead: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['read'],
       failureMessage: 'Read permission required',
@@ -90,7 +99,10 @@ export const PermissionGuards = {
   /**
    * Write permissions
    */
-  requireWrite: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard =>
+  requireWrite: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['write'],
       failureMessage: 'Write permission required',
@@ -99,7 +111,10 @@ export const PermissionGuards = {
   /**
    * Delete permissions
    */
-  requireDelete: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard =>
+  requireDelete: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['delete'],
       failureMessage: 'Delete permission required',
@@ -108,7 +123,10 @@ export const PermissionGuards = {
   /**
    * Admin permissions
    */
-  requireAdminPermissions: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard =>
+  requireAdminPermissions: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['admin:read', 'admin:write', 'admin:delete'],
       requireAll: true,
@@ -118,7 +136,10 @@ export const PermissionGuards = {
   /**
    * GDPR data access permissions
    */
-  requireGDPRAccess: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard =>
+  requireGDPRAccess: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['gdpr:read_personal_data', 'gdpr:export_data'],
       requireAll: false,
@@ -128,7 +149,10 @@ export const PermissionGuards = {
   /**
    * Own data access (for citizens)
    */
-  requireOwnDataAccess: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): PermissionGuard =>
+  requireOwnDataAccess: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): PermissionGuard =>
     PermissionGuard.create(tokenExtractor, sessionValidator, {
       permissions: ['read_own_data', 'update_own_data'],
       requireAll: false,

@@ -4,6 +4,13 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import {
+  DefaultPermissionEvaluator,
+  InMemoryUserPermissionStore,
+  type UserPermissionStore,
+} from './permission-evaluator.js';
+import { DefaultPermissionManager } from './permission-manager.js';
+import { DefaultRoleManager } from './role-manager.js';
 import type {
   RBACService,
   PermissionManager,
@@ -14,19 +21,12 @@ import type {
   PermissionContext,
   PermissionResult,
 } from './types.js';
-import { DefaultPermissionManager } from './permission-manager.js';
-import { DefaultRoleManager } from './role-manager.js';
-import { 
-  DefaultPermissionEvaluator,
-  InMemoryUserPermissionStore,
-  type UserPermissionStore,
-} from './permission-evaluator.js';
 
 export class DefaultRBACService implements RBACService {
   readonly permissions: PermissionManager;
   readonly roles: RoleManager;
   readonly evaluator: PermissionEvaluator;
-  
+
   private readonly userStore: UserPermissionStore;
 
   constructor(config?: {
@@ -34,14 +34,15 @@ export class DefaultRBACService implements RBACService {
     roleManager?: RoleManager;
     userStore?: UserPermissionStore;
   }) {
-    this.permissions = config?.permissionManager ?? DefaultPermissionManager.create();
+    this.permissions =
+      config?.permissionManager ?? DefaultPermissionManager.create();
     this.roles = config?.roleManager ?? DefaultRoleManager.create();
     this.userStore = config?.userStore ?? InMemoryUserPermissionStore.create();
-    
+
     this.evaluator = DefaultPermissionEvaluator.create(
       this.permissions,
       this.roles,
-      this.userStore
+      this.userStore,
     );
   }
 
@@ -54,7 +55,7 @@ export class DefaultRBACService implements RBACService {
 
     // Get current roles
     const currentRoles = await this.userStore.getUserRoles(userId);
-    
+
     // Add role if not already assigned
     if (!currentRoles.includes(roleId)) {
       const newRoles = [...currentRoles, roleId];
@@ -64,8 +65,8 @@ export class DefaultRBACService implements RBACService {
 
   async removeRoleFromUser(userId: string, roleId: string): Promise<void> {
     const currentRoles = await this.userStore.getUserRoles(userId);
-    const newRoles = currentRoles.filter(r => r !== roleId);
-    
+    const newRoles = currentRoles.filter((r) => r !== roleId);
+
     if (newRoles.length !== currentRoles.length) {
       await this.userStore.setUserRoles(userId, newRoles);
     }
@@ -74,18 +75,21 @@ export class DefaultRBACService implements RBACService {
   async getUserRoles(userId: string): Promise<readonly Role[]> {
     const roleIds = await this.userStore.getUserRoles(userId);
     const roles: Role[] = [];
-    
+
     for (const roleId of roleIds) {
       const role = await this.roles.getRole(roleId);
       if (role) {
         roles.push(role);
       }
     }
-    
+
     return roles;
   }
 
-  async grantPermissionToUser(userId: string, permissionId: string): Promise<void> {
+  async grantPermissionToUser(
+    userId: string,
+    permissionId: string,
+  ): Promise<void> {
     // Verify permission exists
     const permission = await this.permissions.getPermission(permissionId);
     if (!permission) {
@@ -94,7 +98,7 @@ export class DefaultRBACService implements RBACService {
 
     // Get current permissions
     const currentPermissions = await this.userStore.getUserPermissions(userId);
-    
+
     // Add permission if not already granted
     if (!currentPermissions.includes(permissionId)) {
       const newPermissions = [...currentPermissions, permissionId];
@@ -102,17 +106,21 @@ export class DefaultRBACService implements RBACService {
     }
   }
 
-  async revokePermissionFromUser(userId: string, permissionId: string): Promise<void> {
+  async revokePermissionFromUser(
+    userId: string,
+    permissionId: string,
+  ): Promise<void> {
     const currentPermissions = await this.userStore.getUserPermissions(userId);
-    const newPermissions = currentPermissions.filter(p => p !== permissionId);
-    
+    const newPermissions = currentPermissions.filter((p) => p !== permissionId);
+
     if (newPermissions.length !== currentPermissions.length) {
       await this.userStore.setUserPermissions(userId, newPermissions);
     }
   }
 
   async getUserPermissions(userId: string): Promise<readonly Permission[]> {
-    const effectivePermissions = await this.evaluator.getEffectivePermissions(userId);
+    const effectivePermissions =
+      await this.evaluator.getEffectivePermissions(userId);
     return effectivePermissions;
   }
 
@@ -126,7 +134,7 @@ export class DefaultRBACService implements RBACService {
   async initializeDefaults(): Promise<void> {
     // Create default permissions
     await this.createDefaultPermissions();
-    
+
     // Create default roles
     await this.createDefaultRoles();
   }
@@ -158,7 +166,7 @@ export class DefaultRBACService implements RBACService {
         action: 'delete',
         nsmClassification: 'RESTRICTED',
       },
-      
+
       // Admin permissions
       {
         id: 'admin:manage_users',
@@ -176,7 +184,7 @@ export class DefaultRBACService implements RBACService {
         action: 'manage',
         nsmClassification: 'CONFIDENTIAL',
       },
-      
+
       // GDPR permissions
       {
         id: 'gdpr:read_personal_data',
@@ -194,7 +202,7 @@ export class DefaultRBACService implements RBACService {
         action: 'delete',
         nsmClassification: 'CONFIDENTIAL',
       },
-      
+
       // Citizen permissions
       {
         id: 'citizen:read_own_data',
@@ -243,10 +251,16 @@ export class DefaultRBACService implements RBACService {
         id: 'admin',
         name: 'Administrator',
         description: 'System administrator',
-        permissions: ['read', 'write', 'delete', 'admin:manage_users', 'admin:manage_roles'],
+        permissions: [
+          'read',
+          'write',
+          'delete',
+          'admin:manage_users',
+          'admin:manage_roles',
+        ],
         nsmClassification: 'CONFIDENTIAL',
       },
-      
+
       // Norwegian government roles
       {
         id: 'citizen',

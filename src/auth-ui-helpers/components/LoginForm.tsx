@@ -5,8 +5,9 @@
  */
 
 import React, { useState, useCallback, FormEvent } from 'react';
-import type { LoginFormProps, LoginCredentials } from '../types.js';
+
 import { useNorwegianCompliance } from '../hooks/useNorwegianCompliance.js';
+import type { LoginFormProps, LoginCredentials } from '../types.js';
 
 export function LoginForm({
   onSubmit,
@@ -17,7 +18,9 @@ export function LoginForm({
   className = '',
 }: LoginFormProps) {
   const { locale } = useNorwegianCompliance();
-  const [selectedProvider, setSelectedProvider] = useState(initialProvider || providers[0]?.id || 'local');
+  const [selectedProvider, setSelectedProvider] = useState(
+    initialProvider || providers[0]?.id || 'local',
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [personalNumber, setPersonalNumber] = useState('');
@@ -26,37 +29,45 @@ export function LoginForm({
 
   const isNorwegianProvider = selectedProvider === 'norwegian-id';
 
-  const handleSubmit = useCallback(async (e: FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
+      setIsSubmitting(true);
 
-    try {
-      const credentials: LoginCredentials = {
-        provider: selectedProvider,
-        rememberMe,
-        ...(isNorwegianProvider
-          ? { personalNumber }
-          : { email, password }
-        ),
-      };
+      try {
+        const credentials: LoginCredentials = {
+          provider: selectedProvider,
+          rememberMe,
+          ...(isNorwegianProvider ? { personalNumber } : { email, password }),
+        };
 
-      await onSubmit(credentials);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [selectedProvider, email, password, personalNumber, rememberMe, onSubmit, isNorwegianProvider]);
+        await onSubmit(credentials);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      selectedProvider,
+      email,
+      password,
+      personalNumber,
+      rememberMe,
+      onSubmit,
+      isNorwegianProvider,
+    ],
+  );
 
   const getProviderLabel = (provider: { type: string; name: string }) => {
     const labels: Record<string, Record<string, string>> = {
       'nb-NO': {
         'norwegian-id': 'Norsk ID',
-        'oauth': 'OAuth',
-        'local': 'E-post og passord',
+        oauth: 'OAuth',
+        local: 'E-post og passord',
       },
       'en-US': {
         'norwegian-id': 'Norwegian ID',
-        'oauth': 'OAuth',
-        'local': 'Email & Password',
+        oauth: 'OAuth',
+        local: 'Email & Password',
       },
     };
 
@@ -98,8 +109,8 @@ export function LoginForm({
             aria-describedby="personalNumber-help"
           />
           <small id="personalNumber-help">
-            {locale === 'nb-NO' 
-              ? '11-sifret norsk personnummer' 
+            {locale === 'nb-NO'
+              ? '11-sifret norsk personnummer'
               : '11-digit Norwegian personal number'}
           </small>
         </div>
@@ -159,15 +170,14 @@ export function LoginForm({
         </div>
       )}
 
-      <button
-        type="submit"
-        className="submit-button"
-        disabled={isSubmitting}
-      >
-        {isSubmitting 
-          ? (locale === 'nb-NO' ? 'Logger inn...' : 'Logging in...')
-          : (locale === 'nb-NO' ? 'Logg inn' : 'Log in')
-        }
+      <button type="submit" className="submit-button" disabled={isSubmitting}>
+        {isSubmitting
+          ? locale === 'nb-NO'
+            ? 'Logger inn...'
+            : 'Logging in...'
+          : locale === 'nb-NO'
+            ? 'Logg inn'
+            : 'Log in'}
       </button>
     </form>
   );

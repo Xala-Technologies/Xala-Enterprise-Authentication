@@ -4,7 +4,9 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
-import { Logger } from "../foundation-mock.js"
+import { Logger } from '../foundation-mock.js';
+import type { NSMClassification } from '../types/index.js';
+
 import type {
   AuthenticationProvider,
   AuthenticationRequest,
@@ -14,8 +16,7 @@ import type {
   UserProfile,
   AuthenticationCredentials,
   AuthenticationProviderResult,
-} from "./types.js";
-import type { NSMClassification } from "../types/index.js";
+} from './types.js';
 
 interface EIDASConfig extends ProviderConfig {
   readonly eidasNodeUrl: string;
@@ -33,7 +34,9 @@ interface EIDASAttribute {
   readonly name: string;
   readonly required: boolean;
   readonly friendlyName: string;
-  readonly nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri' | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic';
+  readonly nameFormat:
+    | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+    | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic';
 }
 
 interface EIDASUserProfile extends UserProfile {
@@ -72,7 +75,14 @@ export class EIDASProvider implements AuthenticationProvider {
   readonly name = 'eIDAS Cross-Border Authentication';
   enabled = true;
   readonly nsmClassification: NSMClassification = 'RESTRICTED';
-  readonly supportedLanguages: readonly string[] = ['en-US', 'nb-NO', 'fr-FR', 'de-DE', 'es-ES', 'it-IT'];
+  readonly supportedLanguages: readonly string[] = [
+    'en-US',
+    'nb-NO',
+    'fr-FR',
+    'de-DE',
+    'es-ES',
+    'it-IT',
+  ];
 
   private readonly config: EIDASConfig;
   private readonly logger: Logger;
@@ -88,11 +98,11 @@ export class EIDASProvider implements AuthenticationProvider {
   }
 
   async initialize(): Promise<void> {
-    this.logger.info("Initializing eIDAS provider", {
+    this.logger.info('Initializing eIDAS provider', {
       serviceProviderId: this.config.serviceProviderId,
       supportedCountries: Array.from(this.supportedCountries),
       levelOfAssurance: this.config.levelOfAssurance,
-      nsmClassification: 'RESTRICTED' as NSMClassification
+      nsmClassification: 'RESTRICTED' as NSMClassification,
     });
 
     // Validate configuration
@@ -101,10 +111,12 @@ export class EIDASProvider implements AuthenticationProvider {
     // Test connectivity to eIDAS node
     await this.testConnectivity();
 
-    this.logger.info("eIDAS provider initialized successfully");
+    this.logger.info('eIDAS provider initialized successfully');
   }
 
-  async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationProviderResult> {
+  async authenticate(
+    credentials: AuthenticationCredentials,
+  ): Promise<AuthenticationProviderResult> {
     try {
       // Cast credentials to eIDAS-specific format
       const eidasCredentials = credentials as AuthenticationCredentials & {
@@ -120,23 +132,24 @@ export class EIDASProvider implements AuthenticationProvider {
         return {
           success: false,
           error: {
-            code: "UNSUPPORTED_COUNTRY",
+            code: 'UNSUPPORTED_COUNTRY',
             message: `Country ${eidasCredentials.countryCode} not supported`,
-            nsmClassification: "OPEN"
-          }
+            nsmClassification: 'OPEN',
+          },
         };
       }
 
       // Set defaults and validate level of assurance
-      const levelOfAssurance = eidasCredentials.levelOfAssurance || 'substantial';
+      const levelOfAssurance =
+        eidasCredentials.levelOfAssurance || 'substantial';
       if (!this.isValidLevelOfAssurance(levelOfAssurance)) {
         return {
           success: false,
           error: {
-            code: "INVALID_LEVEL_OF_ASSURANCE",
+            code: 'INVALID_LEVEL_OF_ASSURANCE',
             message: `Level of assurance ${levelOfAssurance} not supported`,
-            nsmClassification: "OPEN"
-          }
+            nsmClassification: 'OPEN',
+          },
         };
       }
 
@@ -146,51 +159,51 @@ export class EIDASProvider implements AuthenticationProvider {
         levelOfAssurance,
         requestedAttributes: eidasCredentials.requestedAttributes || [],
         returnUrl: eidasCredentials.returnUrl || '/auth/callback',
-        spType: eidasCredentials.spType || 'public'
+        spType: eidasCredentials.spType || 'public',
       };
 
       // For demonstration, simulate eIDAS SAML flow
       // In production, this would integrate with actual eIDAS node
       const mockResponse = await this.simulateEIDASAuthentication(eidasRequest);
-      
+
       if (mockResponse.statusCode !== 'Success') {
         return {
           success: false,
           error: {
-            code: "EIDAS_AUTH_FAILED",
-            message: mockResponse.statusMessage || "eIDAS authentication failed",
-            nsmClassification: "OPEN"
-          }
+            code: 'EIDAS_AUTH_FAILED',
+            message:
+              mockResponse.statusMessage || 'eIDAS authentication failed',
+            nsmClassification: 'OPEN',
+          },
         };
       }
 
       // Process eIDAS response and create user profile
       const userProfile = await this.processEIDASResponse(mockResponse);
 
-      this.logger.info("eIDAS authentication successful", {
+      this.logger.info('eIDAS authentication successful', {
         country: mockResponse.country,
         levelOfAssurance: mockResponse.levelOfAssurance,
         personIdentifier: mockResponse.personIdentifier,
-        nsmClassification: userProfile.nsmClassification
+        nsmClassification: userProfile.nsmClassification,
       });
 
       return {
         success: true,
-        user: userProfile
+        user: userProfile,
       };
-
     } catch (error) {
-      this.logger.error("eIDAS authentication failed", {
-        error: (error as Error).message
+      this.logger.error('eIDAS authentication failed', {
+        error: (error as Error).message,
       });
 
       return {
         success: false,
         error: {
-          code: "EIDAS_ERROR",
-          message: "eIDAS authentication error",
-          nsmClassification: "OPEN"
-        }
+          code: 'EIDAS_ERROR',
+          message: 'eIDAS authentication error',
+          nsmClassification: 'OPEN',
+        },
       };
     }
   }
@@ -201,23 +214,27 @@ export class EIDASProvider implements AuthenticationProvider {
       name: this.name,
       type: this.type,
       enabled: this.enabled,
-      icon: "/icons/eidas.svg",
-      description: "EU eIDAS cross-border authentication",
+      icon: '/icons/eidas.svg',
+      description: 'EU eIDAS cross-border authentication',
       supportedFeatures: [
-        "cross_border_auth",
-        "high_assurance",
-        "saml_sso",
-        "attribute_sharing"
+        'cross_border_auth',
+        'high_assurance',
+        'saml_sso',
+        'attribute_sharing',
       ],
       configuration: {
         supportedCountries: Array.from(this.supportedCountries),
         levelOfAssurance: this.config.levelOfAssurance,
-        requestedAttributes: this.config.requestedAttributes.map(attr => attr.name)
-      }
+        requestedAttributes: this.config.requestedAttributes.map(
+          (attr) => attr.name,
+        ),
+      },
     };
   }
 
-  async validateCredentials(credentials: AuthenticationCredentials): Promise<boolean> {
+  async validateCredentials(
+    credentials: AuthenticationCredentials,
+  ): Promise<boolean> {
     try {
       const eidasCredentials = credentials as AuthenticationCredentials & {
         countryCode?: string;
@@ -235,29 +252,39 @@ export class EIDASProvider implements AuthenticationProvider {
       }
 
       // Check level of assurance if provided
-      if (eidasCredentials.levelOfAssurance && !this.isValidLevelOfAssurance(eidasCredentials.levelOfAssurance)) {
+      if (
+        eidasCredentials.levelOfAssurance &&
+        !this.isValidLevelOfAssurance(eidasCredentials.levelOfAssurance)
+      ) {
         return false;
       }
 
       return true;
     } catch (error) {
-      this.logger.error("Error validating eIDAS credentials", { error });
+      this.logger.error('Error validating eIDAS credentials', { error });
       return false;
     }
   }
 
-  async refresh(refreshToken: string): Promise<{ success: boolean; accessToken?: string; expiresIn?: number; error?: string }> {
+  async refresh(
+    refreshToken: string,
+  ): Promise<{
+    success: boolean;
+    accessToken?: string;
+    expiresIn?: number;
+    error?: string;
+  }> {
     // eIDAS doesn't typically support refresh tokens
     return {
       success: false,
-      error: 'Refresh tokens not supported for eIDAS authentication'
+      error: 'Refresh tokens not supported for eIDAS authentication',
     };
   }
 
   async logout(sessionId: string): Promise<void> {
-    this.logger.info('eIDAS logout requested', { 
+    this.logger.info('eIDAS logout requested', {
       sessionId,
-      nsmClassification: this.nsmClassification 
+      nsmClassification: this.nsmClassification,
     });
     // In production, would implement SAML logout
   }
@@ -265,7 +292,9 @@ export class EIDASProvider implements AuthenticationProvider {
   async getUserProfile(accessToken: string): Promise<UserProfile | null> {
     // eIDAS doesn't use access tokens in the traditional sense
     // User profile is obtained during authentication
-    this.logger.debug('getUserProfile called for eIDAS provider', { accessToken: 'present' });
+    this.logger.debug('getUserProfile called for eIDAS provider', {
+      accessToken: 'present',
+    });
     return null;
   }
 
@@ -275,7 +304,7 @@ export class EIDASProvider implements AuthenticationProvider {
   async generateAuthenticationUrl(
     countryCode: string,
     levelOfAssurance: 'low' | 'substantial' | 'high' = 'substantial',
-    requestedAttributes: string[] = []
+    requestedAttributes: string[] = [],
   ): Promise<string> {
     if (!this.supportedCountries.has(countryCode)) {
       throw new Error(`Unsupported country: ${countryCode}`);
@@ -285,7 +314,7 @@ export class EIDASProvider implements AuthenticationProvider {
     const samlRequest = await this.buildSAMLAuthRequest(
       countryCode,
       levelOfAssurance,
-      requestedAttributes
+      requestedAttributes,
     );
 
     // Encode and build URL
@@ -298,13 +327,16 @@ export class EIDASProvider implements AuthenticationProvider {
   /**
    * Process eIDAS SAML response
    */
-  async processSAMLResponse(samlResponse: string, relayState?: string): Promise<EIDASResponse> {
+  async processSAMLResponse(
+    samlResponse: string,
+    relayState?: string,
+  ): Promise<EIDASResponse> {
     // In production, this would parse and validate the SAML response
     // For now, simulate the response processing
-    
-    this.logger.debug("Processing eIDAS SAML response", {
+
+    this.logger.debug('Processing eIDAS SAML response', {
       relayState,
-      responseLength: samlResponse.length
+      responseLength: samlResponse.length,
     });
 
     // Mock response for demonstration
@@ -314,31 +346,38 @@ export class EIDASProvider implements AuthenticationProvider {
       country: 'DE', // Germany
       levelOfAssurance: 'substantial',
       attributes: {
-        'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier': 'DE/AT/12345678',
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName': 'Müller',
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName': 'Hans',
-        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth': '1985-03-15'
+        'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier':
+          'DE/AT/12345678',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName':
+          'Müller',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName':
+          'Hans',
+        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth':
+          '1985-03-15',
       },
       personIdentifier: 'DE/AT/12345678',
-      statusCode: 'Success'
+      statusCode: 'Success',
     };
   }
 
   private async validateConfiguration(): Promise<void> {
     if (!this.config.eidasNodeUrl) {
-      throw new Error("eIDAS node URL is required");
+      throw new Error('eIDAS node URL is required');
     }
 
     if (!this.config.serviceProviderId) {
-      throw new Error("Service Provider ID is required");
+      throw new Error('Service Provider ID is required');
     }
 
-    if (!this.config.signatureCertificate || !this.config.encryptionCertificate) {
-      throw new Error("Signature and encryption certificates are required");
+    if (
+      !this.config.signatureCertificate ||
+      !this.config.encryptionCertificate
+    ) {
+      throw new Error('Signature and encryption certificates are required');
     }
 
     if (this.config.countryCodes.length === 0) {
-      throw new Error("At least one country code must be supported");
+      throw new Error('At least one country code must be supported');
     }
   }
 
@@ -346,22 +385,23 @@ export class EIDASProvider implements AuthenticationProvider {
     try {
       // Test connection to eIDAS node metadata endpoint
       const metadataUrl = `${this.config.eidasNodeUrl}/EidasNode/ConnectorResponderMetadata`;
-      
+
       // In production, would make actual HTTP request
-      this.logger.debug("Testing eIDAS node connectivity", { metadataUrl });
-      
+      this.logger.debug('Testing eIDAS node connectivity', { metadataUrl });
     } catch (error) {
-      this.logger.warn("eIDAS node connectivity test failed", {
-        error: (error as Error).message
+      this.logger.warn('eIDAS node connectivity test failed', {
+        error: (error as Error).message,
       });
     }
   }
 
-  private async simulateEIDASAuthentication(request: EIDASAuthenticationRequest): Promise<EIDASResponse> {
+  private async simulateEIDASAuthentication(
+    request: EIDASAuthenticationRequest,
+  ): Promise<EIDASResponse> {
     // Simulate eIDAS authentication flow
     // In production, this would handle the actual SAML exchange
-    
-    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
 
     return {
       samlResponse: 'mock-saml-response',
@@ -370,26 +410,44 @@ export class EIDASProvider implements AuthenticationProvider {
       levelOfAssurance: request.levelOfAssurance,
       attributes: {
         'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier': `${request.countryCode}/NO/mock-identifier`,
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName': 'MockLastName',
-        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName': 'MockFirstName',
-        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth': '1990-01-01'
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName':
+          'MockLastName',
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName':
+          'MockFirstName',
+        'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth':
+          '1990-01-01',
       },
       personIdentifier: `${request.countryCode}/NO/mock-identifier`,
-      statusCode: 'Success'
+      statusCode: 'Success',
     };
   }
 
-  private async processEIDASResponse(response: EIDASResponse): Promise<EIDASUserProfile> {
-    const attributes = response.attributes;
-    
+  private async processEIDASResponse(
+    response: EIDASResponse,
+  ): Promise<EIDASUserProfile> {
+    const { attributes } = response;
+
     // Extract standard attributes
-    const personIdentifier = attributes['http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'] || response.personIdentifier;
-    const familyName = attributes['http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName'] || '';
-    const givenName = attributes['http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName'] || '';
-    const dateOfBirth = attributes['http://eidas.europa.eu/attributes/naturalperson/DateOfBirth'];
-    
+    const personIdentifier =
+      attributes[
+        'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'
+      ] || response.personIdentifier;
+    const familyName =
+      attributes[
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName'
+      ] || '';
+    const givenName =
+      attributes[
+        'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName'
+      ] || '';
+    const dateOfBirth =
+      attributes['http://eidas.europa.eu/attributes/naturalperson/DateOfBirth'];
+
     // Determine NSM classification based on level of assurance
-    const nsmClassification = this.determineNSMClassification(response.levelOfAssurance, response.country);
+    const nsmClassification = this.determineNSMClassification(
+      response.levelOfAssurance,
+      response.country,
+    );
 
     const userProfile: EIDASUserProfile = {
       id: personIdentifier,
@@ -407,8 +465,8 @@ export class EIDASProvider implements AuthenticationProvider {
         levelOfAssurance: response.levelOfAssurance,
         familyName,
         givenName,
-        authenticatedAt: new Date().toISOString()
-      }
+        authenticatedAt: new Date().toISOString(),
+      },
     };
 
     return userProfile;
@@ -416,27 +474,51 @@ export class EIDASProvider implements AuthenticationProvider {
 
   private determineNSMClassification(
     levelOfAssurance: 'low' | 'substantial' | 'high',
-    country: string
+    country: string,
   ): NSMClassification {
     // EU citizens with high assurance get RESTRICTED classification
     if (levelOfAssurance === 'high') {
       return 'RESTRICTED';
     }
-    
+
     // Substantial assurance gets RESTRICTED for EU countries
     if (levelOfAssurance === 'substantial' && this.isEUCountry(country)) {
       return 'RESTRICTED';
     }
-    
+
     // Lower assurance or non-EU gets OPEN
     return 'OPEN';
   }
 
   private isEUCountry(countryCode: string): boolean {
     const euCountries = [
-      'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI',
-      'FR', 'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT',
-      'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'
+      'AT',
+      'BE',
+      'BG',
+      'CY',
+      'CZ',
+      'DE',
+      'DK',
+      'EE',
+      'ES',
+      'FI',
+      'FR',
+      'GR',
+      'HR',
+      'HU',
+      'IE',
+      'IT',
+      'LT',
+      'LU',
+      'LV',
+      'MT',
+      'NL',
+      'PL',
+      'PT',
+      'RO',
+      'SE',
+      'SI',
+      'SK',
     ];
     return euCountries.includes(countryCode);
   }
@@ -448,7 +530,7 @@ export class EIDASProvider implements AuthenticationProvider {
   private async buildSAMLAuthRequest(
     countryCode: string,
     levelOfAssurance: string,
-    requestedAttributes: string[]
+    requestedAttributes: string[],
   ): Promise<string> {
     // In production, would build proper SAML AuthnRequest XML
     // For now, return mock request
@@ -466,26 +548,26 @@ export class EIDASProvider implements AuthenticationProvider {
         name: 'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier',
         required: true,
         friendlyName: 'PersonIdentifier',
-        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
       },
       {
         name: 'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName',
         required: false,
         friendlyName: 'FamilyName',
-        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
       },
       {
         name: 'http://eidas.europa.eu/attributes/naturalperson/CurrentGivenName',
         required: false,
         friendlyName: 'FirstName',
-        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
       },
       {
         name: 'http://eidas.europa.eu/attributes/naturalperson/DateOfBirth',
         required: false,
         friendlyName: 'DateOfBirth',
-        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
-      }
+        nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+      },
     ];
 
     for (const attr of standardAttrs) {

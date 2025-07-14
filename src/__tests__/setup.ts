@@ -16,7 +16,7 @@ global.console = {
 };
 
 // Mock crypto for Node.js environment
-Object.defineProperty(global, 'crypto', {
+Object.defineProperty(global, "crypto", {
   value: {
     randomUUID: () => Math.random().toString(36).substring(2, 15),
     getRandomValues: (arr: any) => {
@@ -29,17 +29,10 @@ Object.defineProperty(global, 'crypto', {
 });
 
 // Mock TextEncoder/TextDecoder for JWT operations
-global.TextEncoder = class TextEncoder {
-  encode(input: string): Uint8Array {
-    return Buffer.from(input, 'utf8');
-  }
-};
-
-global.TextDecoder = class TextDecoder {
-  decode(input: Uint8Array): string {
-    return Buffer.from(input).toString('utf8');
-  }
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).TextEncoder = require("util").TextEncoder;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).TextDecoder = require("util").TextDecoder;
 
 // Mock localStorage for browser environment
 const localStorageMock = {
@@ -49,14 +42,21 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
+// Check if window exists (jsdom environment)
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+  });
 
-// Mock sessionStorage
-Object.defineProperty(window, 'sessionStorage', {
-  value: localStorageMock,
-});
+  // Mock sessionStorage
+  Object.defineProperty(window, "sessionStorage", {
+    value: localStorageMock,
+  });
+} else {
+  // Mock for Node.js environment
+  (global as any).localStorage = localStorageMock;
+  (global as any).sessionStorage = localStorageMock;
+}
 
 // Mock environment variables
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";

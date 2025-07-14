@@ -3,14 +3,15 @@
  * @xala-technologies/authentication
  */
 
-import { Logger } from "../foundation-mock.js"
-import type { SessionInfo, SessionStorageConfig } from "../types/index.js";
-import type { SessionStorageBackend } from "./types.js";
+import { Logger } from '../foundation-mock.js';
+import type { SessionInfo, SessionStorageConfig } from '../types/index.js';
+
+import type { SessionStorageBackend } from './types.js';
 
 export class MemorySessionStorage implements SessionStorageBackend {
-  private sessions: Map<string, SessionInfo> = new Map();
-  private userSessions: Map<string, Set<string>> = new Map();
-  private logger: Logger;
+  private readonly sessions: Map<string, SessionInfo> = new Map();
+  private readonly userSessions: Map<string, Set<string>> = new Map();
+  private readonly logger: Logger;
   private cleanupInterval?: NodeJS.Timeout | undefined;
 
   constructor(logger: Logger) {
@@ -18,17 +19,17 @@ export class MemorySessionStorage implements SessionStorageBackend {
   }
 
   async initialize(config: SessionStorageConfig): Promise<void> {
-    this.logger.info("Initializing memory session storage");
+    this.logger.info('Initializing memory session storage');
 
     // Start cleanup interval
     const cleanupIntervalMs = config.ttl || 60000; // Default 1 minute
     this.cleanupInterval = setInterval(() => {
       this.cleanup().catch((error) => {
-        this.logger.error("Session cleanup failed", { error: error.message });
+        this.logger.error('Session cleanup failed', { error: error.message });
       });
     }, cleanupIntervalMs);
 
-    this.logger.info("Memory session storage initialized", {
+    this.logger.info('Memory session storage initialized', {
       cleanupInterval: cleanupIntervalMs,
     });
   }
@@ -42,7 +43,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
     this.sessions.clear();
     this.userSessions.clear();
 
-    this.logger.info("Memory session storage disconnected");
+    this.logger.info('Memory session storage disconnected');
   }
 
   async health(): Promise<boolean> {
@@ -73,7 +74,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
     userSessionIds.add(sessionId);
     this.userSessions.set(session.userId, userSessionIds);
 
-    this.logger.debug("Session stored", {
+    this.logger.debug('Session stored', {
       sessionId,
       userId: session.userId,
       expiresAt: session.expiresAt,
@@ -95,7 +96,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
         }
       }
 
-      this.logger.debug("Session deleted", {
+      this.logger.debug('Session deleted', {
         sessionId,
         userId: session.userId,
       });
@@ -122,7 +123,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
     }
 
     if (expiredSessions.length > 0) {
-      this.logger.debug("Expired sessions cleaned up", {
+      this.logger.debug('Expired sessions cleaned up', {
         count: expiredSessions.length,
       });
     }
@@ -149,7 +150,7 @@ export class MemorySessionStorage implements SessionStorageBackend {
       await this.delete(sessionId);
     }
 
-    this.logger.info("All user sessions deleted", {
+    this.logger.info('All user sessions deleted', {
       userId,
       sessionCount: sessionIds.size,
     });
@@ -165,16 +166,16 @@ export class MemorySessionStorage implements SessionStorageBackend {
 
 export class SessionStorageFactory {
   static create(
-    type: "memory" | "redis" | "database",
+    type: 'memory' | 'redis' | 'database',
     logger: Logger,
   ): SessionStorageBackend {
     switch (type) {
-      case "memory":
+      case 'memory':
         return MemorySessionStorage.create(logger);
-      case "redis":
-        throw new Error("Redis session storage not yet implemented");
-      case "database":
-        throw new Error("Database session storage not yet implemented");
+      case 'redis':
+        throw new Error('Redis session storage not yet implemented');
+      case 'database':
+        throw new Error('Database session storage not yet implemented');
       default:
         throw new Error(`Unknown session storage type: ${type}`);
     }

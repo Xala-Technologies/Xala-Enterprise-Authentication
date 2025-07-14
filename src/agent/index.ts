@@ -2,4 +2,4 @@
  * AuthenticationSpecialistAgent for @xala-technologies/authentication
  */
 
-export * from "./specialist-agent.js";
+export * from './specialist-agent.js';

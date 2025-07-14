@@ -2,8 +2,25 @@
  * Core implementation for @xala-technologies/authentication
  */
 
-import { randomBytes } from "crypto";
-import { Logger, EventCore } from "../foundation-mock.js"
+import { randomBytes } from 'crypto';
+
+import {
+  DefaultSessionManager,
+  DefaultTokenManager,
+  SessionStorageFactory,
+} from '../auth-core/index.js';
+import type {
+  SessionManager,
+  TokenManager,
+  SessionStorageBackend,
+} from '../auth-core/types.js';
+import {
+  DefaultProviderRegistry,
+  ProviderFactory,
+  type ProviderRegistry,
+  type AuthenticationProvider,
+} from '../auth-providers/index.js';
+import { Logger, EventCore } from '../foundation-mock';
 import type {
   AuthenticationConfig,
   AuthenticationService,
@@ -14,37 +31,21 @@ import type {
   UserProfile,
   authenticationConfig,
   authenticationService,
-} from "../types/index.js";
+} from '../types/index.js';
 import {
   isValidAuthenticationRequest,
   isValidUserProfile,
   safeGet,
-} from "../utils/type-safety.js";
-import {
-  DefaultSessionManager,
-  DefaultTokenManager,
-  SessionStorageFactory,
-} from "../auth-core/index.js";
-import type {
-  SessionManager,
-  TokenManager,
-  SessionStorageBackend,
-} from "../auth-core/types.js";
-import { 
-  DefaultProviderRegistry,
-  ProviderFactory,
-  type ProviderRegistry,
-  type AuthenticationProvider 
-} from "../auth-providers/index.js";
+} from '../utils/type-safety.js';
 
 export class Authentication implements AuthenticationService {
-  private config: AuthenticationConfig;
-  private logger: Logger;
-  private events: EventCore;
-  private sessionManager: SessionManager;
-  private tokenManager: TokenManager;
-  private sessionStorage: SessionStorageBackend;
-  private providerRegistry: ProviderRegistry;
+  private readonly config: AuthenticationConfig;
+  private readonly logger: Logger;
+  private readonly events: EventCore;
+  private readonly sessionManager: SessionManager;
+  private readonly tokenManager: TokenManager;
+  private readonly sessionStorage: SessionStorageBackend;
+  private readonly providerRegistry: ProviderRegistry;
   private providers: AuthenticationProvider[] = [];
   private initialized = false;
   private activeSessions = 0;
@@ -53,13 +54,13 @@ export class Authentication implements AuthenticationService {
   constructor(config: AuthenticationConfig) {
     this.config = config;
     this.logger = Logger.create({
-      serviceName: "authentication",
+      serviceName: 'authentication',
       nsmClassification: config.nsmClassification,
       gdprCompliant: config.gdprCompliant,
       auditTrail: config.auditTrail,
     });
     this.events = EventCore.create({
-      serviceName: "authentication",
+      serviceName: 'authentication',
       nsmClassification: config.nsmClassification,
       gdprCompliant: config.gdprCompliant,
       auditTrail: config.auditTrail,
@@ -84,8 +85,8 @@ export class Authentication implements AuthenticationService {
       refreshTokenSecret: this.generateSecret(),
       accessTokenLifetime: config.accessTokenLifetime,
       refreshTokenLifetime: config.refreshTokenLifetime,
-      issuer: "xala-authentication",
-      audience: "xala-application",
+      issuer: 'xala-authentication',
+      audience: 'xala-application',
       logger: this.logger,
     });
 
@@ -94,9 +95,11 @@ export class Authentication implements AuthenticationService {
   }
 
   async initialize(): Promise<void> {
-    if (this.initialized) {return;}
+    if (this.initialized) {
+      return;
+    }
 
-    this.logger.info("Initializing authentication service", {
+    this.logger.info('Initializing authentication service', {
       nsmClassification: this.config.nsmClassification,
       gdprCompliant: this.config.gdprCompliant,
       providers: this.config.providers.map((p) => p.id),
@@ -110,7 +113,7 @@ export class Authentication implements AuthenticationService {
     for (const provider of this.providers) {
       await provider.initialize();
       this.providerRegistry.register(provider);
-      this.logger.info("Provider initialized", {
+      this.logger.info('Provider initialized', {
         providerId: provider.id,
         providerType: provider.type,
         enabled: provider.enabled,
@@ -122,7 +125,7 @@ export class Authentication implements AuthenticationService {
 
     this.initialized = true;
 
-    this.logger.info("Authentication service initialized successfully");
+    this.logger.info('Authentication service initialized successfully');
   }
 
   async authenticate(
@@ -134,22 +137,22 @@ export class Authentication implements AuthenticationService {
         return {
           success: false,
           error: {
-            code: "INVALID_REQUEST",
-            message: "Invalid authentication request format",
-            nsmClassification: "OPEN",
+            code: 'INVALID_REQUEST',
+            message: 'Invalid authentication request format',
+            nsmClassification: 'OPEN',
           },
         };
       }
 
       // Find provider
       const provider = this.providerRegistry.getProvider(request.provider);
-      if (!provider || !provider.enabled) {
+      if (!provider?.enabled) {
         return {
           success: false,
           error: {
-            code: "PROVIDER_NOT_FOUND",
+            code: 'PROVIDER_NOT_FOUND',
             message: `Provider ${request.provider} not found or disabled`,
-            nsmClassification: "OPEN",
+            nsmClassification: 'OPEN',
           },
         };
       }
@@ -157,21 +160,21 @@ export class Authentication implements AuthenticationService {
       // Authenticate using provider
       const providerResult = await provider.authenticate({
         type: provider.type,
-        ...request.credentials
+        ...request.credentials,
       });
-      
+
       if (!providerResult.success || !providerResult.user) {
         return {
           success: false,
           error: providerResult.error ?? {
-            code: "AUTHENTICATION_FAILED",
-            message: "Provider authentication failed",
-            nsmClassification: "OPEN",
+            code: 'AUTHENTICATION_FAILED',
+            message: 'Provider authentication failed',
+            nsmClassification: 'OPEN',
           },
         };
       }
 
-      const user = providerResult.user;
+      const { user } = providerResult;
 
       // Create session
       const session = await this.sessionManager.createSession(
@@ -193,7 +196,7 @@ export class Authentication implements AuthenticationService {
       this.activeSessions++;
       this.totalLogins++;
 
-      this.logger.info("User authenticated successfully", {
+      this.logger.info('User authenticated successfully', {
         userId: user.id,
         provider: request.provider,
         sessionId: session.id,
@@ -209,7 +212,7 @@ export class Authentication implements AuthenticationService {
         session,
       };
     } catch (error) {
-      this.logger.error("Authentication failed", {
+      this.logger.error('Authentication failed', {
         provider: request.provider,
         error: (error as Error).message,
       });
@@ -217,9 +220,9 @@ export class Authentication implements AuthenticationService {
       return {
         success: false,
         error: {
-          code: "AUTHENTICATION_FAILED",
-          message: "Authentication failed",
-          nsmClassification: "OPEN",
+          code: 'AUTHENTICATION_FAILED',
+          message: 'Authentication failed',
+          nsmClassification: 'OPEN',
         },
       };
     }
@@ -229,22 +232,22 @@ export class Authentication implements AuthenticationService {
     const result = await this.tokenManager.refreshAccessToken(refreshToken);
 
     if (result.success) {
-      this.logger.debug("Token refreshed successfully");
+      this.logger.debug('Token refreshed successfully');
       return {
         success: true,
         ...(result.accessToken && { accessToken: result.accessToken }),
         ...(result.expiresIn && { expiresIn: result.expiresIn }),
       };
     } else {
-      this.logger.warn("Token refresh failed", {
-        error: result.error ?? "Unknown error",
+      this.logger.warn('Token refresh failed', {
+        error: result.error ?? 'Unknown error',
       });
       return {
         success: false,
         error: {
-          code: "TOKEN_REFRESH_FAILED",
-          message: result.error || "Token refresh failed",
-          nsmClassification: "OPEN",
+          code: 'TOKEN_REFRESH_FAILED',
+          message: result.error || 'Token refresh failed',
+          nsmClassification: 'OPEN',
         },
       };
     }
@@ -254,7 +257,7 @@ export class Authentication implements AuthenticationService {
     await this.sessionManager.deleteSession(sessionId);
     this.activeSessions = Math.max(0, this.activeSessions - 1);
 
-    this.logger.info("User logged out", { sessionId });
+    this.logger.info('User logged out', { sessionId });
   }
 
   async validateSession(sessionId: string): Promise<SessionValidationResult> {
@@ -263,21 +266,25 @@ export class Authentication implements AuthenticationService {
     if (!session) {
       return {
         valid: false,
-        error: "Session not found or expired",
+        error: 'Session not found or expired',
       };
     }
 
     // Load user profile from session using type safety
-    const userProfile = safeGet(session as unknown as Record<string, unknown>, "metadata.userProfile", null);
+    const userProfile = safeGet(
+      session as unknown as Record<string, unknown>,
+      'metadata.userProfile',
+      null,
+    );
     const user: UserProfile = isValidUserProfile(userProfile)
       ? userProfile
       : {
-          id: session.userId,
-          roles: [],
-          permissions: [],
-          nsmClassification: session.nsmClassification,
-          metadata: {},
-        };
+        id: session.userId,
+        roles: [],
+        permissions: [],
+        nsmClassification: session.nsmClassification,
+        metadata: {},
+      };
 
     return {
       valid: true,
@@ -291,7 +298,7 @@ export class Authentication implements AuthenticationService {
 
     return {
       healthy,
-      version: "1.0.0",
+      version: '1.0.0',
       uptime: process.uptime(),
       lastCheck: new Date(),
       activeProviders: this.config.providers
@@ -303,7 +310,7 @@ export class Authentication implements AuthenticationService {
   }
 
   private generateSecret(): string {
-    return randomBytes(32).toString("hex");
+    return randomBytes(32).toString('hex');
   }
 
   private setupCleanupTasks(): void {
@@ -313,7 +320,7 @@ export class Authentication implements AuthenticationService {
         try {
           await this.sessionManager.cleanupExpiredSessions();
         } catch (error) {
-          this.logger.error("Session cleanup failed", {
+          this.logger.error('Session cleanup failed', {
             error: (error as Error).message,
           });
         }
@@ -330,8 +337,7 @@ export class Authentication implements AuthenticationService {
 // Legacy compatibility
 export class authentication
   extends Authentication
-  implements authenticationService
-{
+  implements authenticationService {
   constructor(config: authenticationConfig) {
     super(config as AuthenticationConfig);
   }
@@ -342,16 +348,20 @@ export class authentication
 }
 
 // Service creation functions
-export function createAuthenticationService(config: AuthenticationConfig): Authentication {
+export function createAuthenticationService(
+  config: AuthenticationConfig,
+): Authentication {
   return Authentication.create(config);
 }
 
-export function createTestAuthenticationService(config?: Partial<AuthenticationConfig>): Authentication {
+export function createTestAuthenticationService(
+  config?: Partial<AuthenticationConfig>,
+): Authentication {
   const defaultConfig: AuthenticationConfig = {
-    nsmClassification: "OPEN",
+    nsmClassification: 'OPEN',
     gdprCompliant: true,
-    wcagLevel: "AA",
-    supportedLanguages: ["nb-NO", "en-US", "fr-FR", "ar-SA"],
+    wcagLevel: 'AA',
+    supportedLanguages: ['nb-NO', 'en-US', 'fr-FR', 'ar-SA'],
     auditTrail: true,
     sessionTimeout: 30 * 60 * 1000, // 30 minutes
     refreshTokenLifetime: 24 * 60 * 60 * 1000, // 24 hours
@@ -361,33 +371,37 @@ export function createTestAuthenticationService(config?: Partial<AuthenticationC
     maxLoginAttempts: 5,
     lockoutDuration: 15 * 60 * 1000, // 15 minutes
     sessionStorage: {
-      type: "memory",
-      prefix: "test",
-      ttl: 30 * 60 * 1000
+      type: 'memory',
+      prefix: 'test',
+      ttl: 30 * 60 * 1000,
     },
-    providers: []
+    providers: [],
   };
 
   const mergedConfig = { ...defaultConfig, ...config };
   return Authentication.create(mergedConfig);
 }
 
-export function createProductionAuthenticationService(config: AuthenticationConfig): Authentication {
+export function createProductionAuthenticationService(
+  config: AuthenticationConfig,
+): Authentication {
   // Validate production requirements
-  if (config.sessionStorage.type === "memory") {
-    throw new Error("Memory storage not allowed in production");
-  }
-  
-  if (!config.auditTrail) {
-    throw new Error("Audit trail required in production");
+  if (config.sessionStorage.type === 'memory') {
+    throw new Error('Memory storage not allowed in production');
   }
 
-  if (config.nsmClassification === "OPEN" && config.providers.length === 0) {
-    throw new Error("At least one authentication provider required in production");
+  if (!config.auditTrail) {
+    throw new Error('Audit trail required in production');
+  }
+
+  if (config.nsmClassification === 'OPEN' && config.providers.length === 0) {
+    throw new Error(
+      'At least one authentication provider required in production',
+    );
   }
 
   return Authentication.create(config);
 }
 
 // Export types for convenience
-export type { AuthenticationConfig } from "../types/index.js";
+export type { AuthenticationConfig } from '../types/index.js';

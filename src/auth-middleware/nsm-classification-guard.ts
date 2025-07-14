@@ -4,6 +4,13 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
+import type { NSMClassification } from '../types/index.js';
+import {
+  validateNSMClassification,
+  getMostRestrictiveClassification,
+} from '../utils/norwegian-compliance.js';
+
+import { AuthGuard } from './auth-guard.js';
 import type {
   AuthenticationGuard,
   AuthContext,
@@ -11,11 +18,10 @@ import type {
   TokenExtractor,
   SessionValidator,
 } from './types.js';
-import { AuthGuard } from './auth-guard.js';
-import { validateNSMClassification, getMostRestrictiveClassification } from '../utils/norwegian-compliance.js';
-import type { NSMClassification } from '../types/index.js';
 
-export class NSMClassificationGuard extends AuthGuard implements AuthenticationGuard {
+export class NSMClassificationGuard
+  extends AuthGuard
+  implements AuthenticationGuard {
   override readonly name: string = 'nsm-classification-guard';
   private readonly requiredClassification: NSMClassification;
   private readonly allowHigher: boolean;
@@ -23,7 +29,7 @@ export class NSMClassificationGuard extends AuthGuard implements AuthenticationG
   constructor(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: NSMClassificationGuardOptions
+    options: NSMClassificationGuardOptions,
   ) {
     super(tokenExtractor, sessionValidator, options);
     this.requiredClassification = options.requiredClassification;
@@ -38,10 +44,13 @@ export class NSMClassificationGuard extends AuthGuard implements AuthenticationG
     }
 
     const userClassification = context.user?.nsmClassification ?? 'OPEN';
-    
+
     if (this.allowHigher) {
       // User classification must be at least as restrictive as required
-      return validateNSMClassification(userClassification, this.requiredClassification);
+      return validateNSMClassification(
+        userClassification,
+        this.requiredClassification,
+      );
     } else {
       // User classification must match exactly
       return userClassification === this.requiredClassification;
@@ -53,15 +62,22 @@ export class NSMClassificationGuard extends AuthGuard implements AuthenticationG
    */
   getEffectiveClassification(context: AuthContext): NSMClassification {
     const userClassification = context.user?.nsmClassification ?? 'OPEN';
-    return getMostRestrictiveClassification(userClassification, this.requiredClassification);
+    return getMostRestrictiveClassification(
+      userClassification,
+      this.requiredClassification,
+    );
   }
 
   static override create(
     tokenExtractor: TokenExtractor,
     sessionValidator: SessionValidator,
-    options: NSMClassificationGuardOptions
+    options: NSMClassificationGuardOptions,
   ): NSMClassificationGuard {
-    return new NSMClassificationGuard(tokenExtractor, sessionValidator, options);
+    return new NSMClassificationGuard(
+      tokenExtractor,
+      sessionValidator,
+      options,
+    );
   }
 }
 
@@ -70,9 +86,15 @@ export class NSMClassificationGuard extends AuthGuard implements AuthenticationG
  */
 export function requireNSMClassification(
   classification: NSMClassification,
-  options?: Partial<NSMClassificationGuardOptions>
-): (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator) => NSMClassificationGuard {
-  return (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): NSMClassificationGuard => {
+  options?: Partial<NSMClassificationGuardOptions>,
+): (
+  tokenExtractor: TokenExtractor,
+  sessionValidator: SessionValidator,
+) => NSMClassificationGuard {
+  return (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): NSMClassificationGuard => {
     return NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
       ...options,
       requiredClassification: classification,
@@ -87,7 +109,10 @@ export const NSMClassificationGuards = {
   /**
    * Require OPEN classification (public data)
    */
-  requireOpen: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): NSMClassificationGuard =>
+  requireOpen: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): NSMClassificationGuard =>
     NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
       requiredClassification: 'OPEN',
       failureMessage: 'Access to OPEN classified data only',
@@ -96,7 +121,10 @@ export const NSMClassificationGuards = {
   /**
    * Require RESTRICTED classification
    */
-  requireRestricted: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): NSMClassificationGuard =>
+  requireRestricted: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): NSMClassificationGuard =>
     NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
       requiredClassification: 'RESTRICTED',
       failureMessage: 'RESTRICTED classification required',
@@ -105,7 +133,10 @@ export const NSMClassificationGuards = {
   /**
    * Require CONFIDENTIAL classification
    */
-  requireConfidential: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): NSMClassificationGuard =>
+  requireConfidential: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): NSMClassificationGuard =>
     NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
       requiredClassification: 'CONFIDENTIAL',
       failureMessage: 'CONFIDENTIAL classification required',
@@ -114,7 +145,10 @@ export const NSMClassificationGuards = {
   /**
    * Require SECRET classification
    */
-  requireSecret: (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): NSMClassificationGuard =>
+  requireSecret: (
+    tokenExtractor: TokenExtractor,
+    sessionValidator: SessionValidator,
+  ): NSMClassificationGuard =>
     NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
       requiredClassification: 'SECRET',
       failureMessage: 'SECRET classification required',
@@ -123,11 +157,14 @@ export const NSMClassificationGuards = {
   /**
    * Dynamic classification based on data sensitivity
    */
-  requireDynamicClassification: (
-    classification: NSMClassification
-  ) => (tokenExtractor: TokenExtractor, sessionValidator: SessionValidator): NSMClassificationGuard =>
-    NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
-      requiredClassification: classification,
-      failureMessage: `${classification} classification required for this resource`,
-    }),
+  requireDynamicClassification:
+    (classification: NSMClassification) =>
+      (
+        tokenExtractor: TokenExtractor,
+        sessionValidator: SessionValidator,
+      ): NSMClassificationGuard =>
+        NSMClassificationGuard.create(tokenExtractor, sessionValidator, {
+          requiredClassification: classification,
+          failureMessage: `${classification} classification required for this resource`,
+        }),
 } as const;

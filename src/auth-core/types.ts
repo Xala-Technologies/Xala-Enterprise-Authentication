@@ -9,7 +9,7 @@ import type {
   ClientInfo,
   TokenClaims,
   SessionStorageConfig,
-} from "../types/index.js";
+} from '../types/index.js';
 
 export interface SessionStorage {
   get(sessionId: string): Promise<SessionInfo | null>;
@@ -68,7 +68,7 @@ export interface AuthenticationContext {
   hasRole(role: string): boolean;
   hasPermission(permission: string): boolean;
   canAccess(
-    nsmLevel: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET",
+    nsmLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
   ): boolean;
 }
 

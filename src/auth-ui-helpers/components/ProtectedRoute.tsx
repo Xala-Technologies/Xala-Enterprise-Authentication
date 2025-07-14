@@ -4,6 +4,7 @@
  */
 
 import type { ReactNode } from 'react';
+
 import { useAuth } from '../hooks/useAuth.js';
 
 interface ProtectedRouteProps {
@@ -36,12 +37,18 @@ export function ProtectedRoute({
   }
 
   // Check role requirements
-  if (requiredRoles.length > 0 && !requiredRoles.some(role => hasRole(role))) {
+  if (
+    requiredRoles.length > 0 &&
+    !requiredRoles.some((role) => hasRole(role))
+  ) {
     return <Navigate to="/unauthorized" />;
   }
 
   // Check permission requirements
-  if (requiredPermissions.length > 0 && !requiredPermissions.some(permission => checkPermission(permission))) {
+  if (
+    requiredPermissions.length > 0 &&
+    !requiredPermissions.some((permission) => checkPermission(permission))
+  ) {
     return <Navigate to="/unauthorized" />;
   }
 
@@ -53,7 +60,7 @@ export function ProtectedRoute({
  */
 export function withProtectedRoute<P extends object>(
   Component: React.ComponentType<P>,
-  options: Omit<ProtectedRouteProps, 'children'>
+  options: Omit<ProtectedRouteProps, 'children'>,
 ) {
   return function ProtectedComponent(props: P) {
     return (

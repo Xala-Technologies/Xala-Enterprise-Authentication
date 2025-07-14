@@ -13,7 +13,7 @@ export class DefaultProviderRegistry implements ProviderRegistry {
     if (this.providers.has(provider.id)) {
       throw new Error(`Provider with id ${provider.id} already registered`);
     }
-    
+
     this.providers.set(provider.id, provider);
   }
 
@@ -30,11 +30,13 @@ export class DefaultProviderRegistry implements ProviderRegistry {
   }
 
   getEnabledProviders(): readonly AuthenticationProvider[] {
-    return Array.from(this.providers.values()).filter(p => p.enabled);
+    return Array.from(this.providers.values()).filter((p) => p.enabled);
   }
 
-  getProvidersByType(type: AuthenticationProvider['type']): readonly AuthenticationProvider[] {
-    return Array.from(this.providers.values()).filter(p => p.type === type);
+  getProvidersByType(
+    type: AuthenticationProvider['type'],
+  ): readonly AuthenticationProvider[] {
+    return Array.from(this.providers.values()).filter((p) => p.type === type);
   }
 
   static create(): DefaultProviderRegistry {

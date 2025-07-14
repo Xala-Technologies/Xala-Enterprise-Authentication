@@ -4,48 +4,58 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
-import type { 
-  AuthenticationProvider, 
-  NorwegianIDProviderConfig,
-  OAuthProviderConfig 
-} from './types.js';
+import type { ProviderConfig } from '../types/index.js';
+
+import { EIDASProvider } from './eidas-provider.js';
 import { NorwegianIDProvider } from './norwegian-id-provider.js';
 import { OAuthProvider } from './oauth-provider.js';
-import { EIDASProvider } from './eidas-provider.js';
-import type { ProviderConfig } from '../types/index.js';
+import type {
+  AuthenticationProvider,
+  NorwegianIDProviderConfig,
+  OAuthProviderConfig,
+} from './types.js';
+
 
 export class ProviderFactory {
   static createProvider(config: ProviderConfig): AuthenticationProvider {
     switch (config.type) {
       case 'norwegian-id':
         return this.createNorwegianIDProvider(config);
-      
+
       case 'oauth':
         return this.createOAuthProvider(config);
-      
+
       case 'eidas':
         return this.createEIDASProvider(config);
-      
+
       case 'saml':
         throw new Error('SAML provider not yet implemented');
-      
+
       case 'oidc':
         throw new Error('OIDC provider not yet implemented');
-      
+
       default:
-        throw new Error(`Unknown provider type: ${(config as ProviderConfig).type}`);
+        throw new Error(
+          `Unknown provider type: ${(config).type}`,
+        );
     }
   }
 
-  private static createNorwegianIDProvider(config: ProviderConfig): NorwegianIDProvider {
+  private static createNorwegianIDProvider(
+    config: ProviderConfig,
+  ): NorwegianIDProvider {
     const settings = config.settings ?? {};
-    
-    // Prepare optional configurations
-    let bankIdConfig: NorwegianIDProviderConfig['bankIdConfig'] = undefined;
-    let buypassConfig: NorwegianIDProviderConfig['buypassConfig'] = undefined;
-    let commfidesConfig: NorwegianIDProviderConfig['commfidesConfig'] = undefined;
 
-    if (settings.bankId && typeof settings.bankId === 'object' && settings.bankId !== null) {
+    // Prepare optional configurations
+    let bankIdConfig: NorwegianIDProviderConfig['bankIdConfig'];
+    let buypassConfig: NorwegianIDProviderConfig['buypassConfig'];
+    let commfidesConfig: NorwegianIDProviderConfig['commfidesConfig'];
+
+    if (
+      settings.bankId &&
+      typeof settings.bankId === 'object' &&
+      settings.bankId !== null
+    ) {
       const bankIdSettings = settings.bankId as Record<string, unknown>;
       bankIdConfig = {
         clientId: bankIdSettings.clientId as string,
@@ -55,7 +65,11 @@ export class ProviderFactory {
       };
     }
 
-    if (settings.buypass && typeof settings.buypass === 'object' && settings.buypass !== null) {
+    if (
+      settings.buypass &&
+      typeof settings.buypass === 'object' &&
+      settings.buypass !== null
+    ) {
       const buypassSettings = settings.buypass as Record<string, unknown>;
       buypassConfig = {
         clientId: buypassSettings.clientId as string,
@@ -64,7 +78,11 @@ export class ProviderFactory {
       };
     }
 
-    if (settings.commfides && typeof settings.commfides === 'object' && settings.commfides !== null) {
+    if (
+      settings.commfides &&
+      typeof settings.commfides === 'object' &&
+      settings.commfides !== null
+    ) {
       const commfidesSettings = settings.commfides as Record<string, unknown>;
       commfidesConfig = {
         clientId: commfidesSettings.clientId as string,
@@ -72,7 +90,7 @@ export class ProviderFactory {
         discoveryUrl: commfidesSettings.discoveryUrl as string,
       };
     }
-    
+
     // Build configuration object with all properties
     const norwegianConfig: NorwegianIDProviderConfig = {
       id: config.id,
@@ -93,7 +111,7 @@ export class ProviderFactory {
       throw new Error('OAuth provider requires settings');
     }
 
-    const settings = config.settings;
+    const { settings } = config;
     const oauthConfig: OAuthProviderConfig = {
       id: config.id,
       name: config.name,
@@ -107,7 +125,9 @@ export class ProviderFactory {
       scopes: (settings.scopes as string[]) ?? ['openid', 'profile', 'email'],
       redirectUri: settings.redirectUri as string,
       ...(settings.pkce !== undefined && { pkce: settings.pkce as boolean }),
-      ...(settings.wellKnownUrl !== undefined && { wellKnownUrl: settings.wellKnownUrl as string }),
+      ...(settings.wellKnownUrl !== undefined && {
+        wellKnownUrl: settings.wellKnownUrl as string,
+      }),
     };
 
     return OAuthProvider.create(oauthConfig);
@@ -116,46 +136,58 @@ export class ProviderFactory {
   private static createEIDASProvider(config: ProviderConfig): EIDASProvider {
     const settings = config.settings ?? {};
     const { Logger } = require('../mock-foundation.js');
-    
+
     const eidasConfig = {
       id: config.id,
       name: config.name,
       type: config.type,
       enabled: config.enabled,
       nsmClassification: config.nsmClassification ?? 'RESTRICTED',
-      eidasNodeUrl: (settings.eidasNodeUrl as string) ?? 'https://eidas-node.example.eu',
+      eidasNodeUrl:
+        (settings.eidasNodeUrl as string) ?? 'https://eidas-node.example.eu',
       serviceProviderId: (settings.serviceProviderId as string) ?? 'NO-SP-123',
-      serviceProviderMetadataUrl: (settings.serviceProviderMetadataUrl as string) ?? '',
-      countryCodes: (settings.countryCodes as string[]) ?? ['DE', 'FR', 'IT', 'ES', 'AT'],
-      levelOfAssurance: (settings.levelOfAssurance as 'low' | 'substantial' | 'high') ?? 'substantial',
+      serviceProviderMetadataUrl:
+        (settings.serviceProviderMetadataUrl as string) ?? '',
+      countryCodes: (settings.countryCodes as string[]) ?? [
+        'DE',
+        'FR',
+        'IT',
+        'ES',
+        'AT',
+      ],
+      levelOfAssurance:
+        (settings.levelOfAssurance as 'low' | 'substantial' | 'high') ??
+        'substantial',
       requestedAttributes: (settings.requestedAttributes as any[]) ?? [
         {
           name: 'http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier',
           required: true,
           friendlyName: 'PersonIdentifier',
-          nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+          nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
         },
         {
           name: 'http://eidas.europa.eu/attributes/naturalperson/CurrentFamilyName',
           required: false,
           friendlyName: 'FamilyName',
-          nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
-        }
+          nameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+        },
       ],
       signatureCertificate: (settings.signatureCertificate as string) ?? '',
       encryptionCertificate: (settings.encryptionCertificate as string) ?? '',
-      callbackUrl: (settings.callbackUrl as string) ?? '/auth/eidas/callback'
+      callbackUrl: (settings.callbackUrl as string) ?? '/auth/eidas/callback',
     };
 
     const logger = Logger.create({
       serviceName: 'eidas-provider',
-      nsmClassification: config.nsmClassification ?? 'RESTRICTED'
+      nsmClassification: config.nsmClassification ?? 'RESTRICTED',
     });
 
     return EIDASProvider.create(eidasConfig, logger);
   }
 
-  static createProviders(configs: readonly ProviderConfig[]): AuthenticationProvider[] {
-    return configs.map(config => this.createProvider(config));
+  static createProviders(
+    configs: readonly ProviderConfig[],
+  ): AuthenticationProvider[] {
+    return configs.map((config) => this.createProvider(config));
   }
 }

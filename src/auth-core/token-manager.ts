@@ -3,24 +3,26 @@
  * @xala-technologies/authentication
  */
 
-import { randomBytes, createHmac, timingSafeEqual } from "crypto";
-import { Logger } from "../foundation-mock.js"
-import type { UserProfile, TokenClaims } from "../types/index.js";
+import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
+
+import { Logger } from '../foundation-mock.js';
+import type { UserProfile, TokenClaims } from '../types/index.js';
+
 import type {
   TokenManager,
   TokenValidationResult,
   TokenRefreshResult,
-} from "./types.js";
+} from './types.js';
 
 export class DefaultTokenManager implements TokenManager {
-  private accessTokenSecret: string;
-  private refreshTokenSecret: string;
-  private accessTokenLifetime: number;
-  private refreshTokenLifetime: number;
-  private issuer: string;
-  private audience: string;
-  private logger: Logger;
-  private revokedTokens: Set<string> = new Set();
+  private readonly accessTokenSecret: string;
+  private readonly refreshTokenSecret: string;
+  private readonly accessTokenLifetime: number;
+  private readonly refreshTokenLifetime: number;
+  private readonly issuer: string;
+  private readonly audience: string;
+  private readonly logger: Logger;
+  private readonly revokedTokens: Set<string> = new Set();
 
   constructor(options: {
     accessTokenSecret: string;
@@ -46,7 +48,7 @@ export class DefaultTokenManager implements TokenManager {
   ): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + Math.floor(this.accessTokenLifetime / 1000);
-    const jti = randomBytes(16).toString("hex");
+    const jti = randomBytes(16).toString('hex');
 
     const claims: TokenClaims = {
       sub: user.id,
@@ -67,7 +69,7 @@ export class DefaultTokenManager implements TokenManager {
 
     const token = this.createJWT(claims, this.accessTokenSecret);
 
-    this.logger.debug("Access token generated", {
+    this.logger.debug('Access token generated', {
       userId: user.id,
       sessionId,
       expiresAt: new Date(exp * 1000),
@@ -83,7 +85,7 @@ export class DefaultTokenManager implements TokenManager {
   ): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + Math.floor(this.refreshTokenLifetime / 1000);
-    const jti = randomBytes(16).toString("hex");
+    const jti = randomBytes(16).toString('hex');
 
     const claims: TokenClaims = {
       sub: user.id,
@@ -104,7 +106,7 @@ export class DefaultTokenManager implements TokenManager {
 
     const token = this.createJWT(claims, this.refreshTokenSecret);
 
-    this.logger.debug("Refresh token generated", {
+    this.logger.debug('Refresh token generated', {
       userId: user.id,
       sessionId,
       expiresAt: new Date(exp * 1000),
@@ -119,7 +121,7 @@ export class DefaultTokenManager implements TokenManager {
       if (this.revokedTokens.has(token)) {
         return {
           valid: false,
-          error: "Token has been revoked",
+          error: 'Token has been revoked',
         };
       }
 
@@ -128,7 +130,7 @@ export class DefaultTokenManager implements TokenManager {
       if (!claims) {
         return {
           valid: false,
-          error: "Invalid token signature",
+          error: 'Invalid token signature',
         };
       }
 
@@ -137,7 +139,7 @@ export class DefaultTokenManager implements TokenManager {
       if (claims.exp < now) {
         return {
           valid: false,
-          error: "Token has expired",
+          error: 'Token has expired',
         };
       }
 
@@ -145,7 +147,7 @@ export class DefaultTokenManager implements TokenManager {
       if (!claims.sub || !claims.sessionId || !claims.nsmClassification) {
         return {
           valid: false,
-          error: "Missing required claims",
+          error: 'Missing required claims',
         };
       }
 
@@ -154,12 +156,12 @@ export class DefaultTokenManager implements TokenManager {
         claims,
       };
     } catch (error) {
-      this.logger.warn("Token validation failed", {
+      this.logger.warn('Token validation failed', {
         error: (error as Error).message,
       });
       return {
         valid: false,
-        error: "Token validation error",
+        error: 'Token validation error',
       };
     }
   }
@@ -171,7 +173,7 @@ export class DefaultTokenManager implements TokenManager {
       if (!claims) {
         return {
           success: false,
-          error: "Invalid refresh token",
+          error: 'Invalid refresh token',
         };
       }
 
@@ -180,7 +182,7 @@ export class DefaultTokenManager implements TokenManager {
       if (claims.exp < now) {
         return {
           success: false,
-          error: "Refresh token has expired",
+          error: 'Refresh token has expired',
         };
       }
 
@@ -188,7 +190,7 @@ export class DefaultTokenManager implements TokenManager {
       if (this.revokedTokens.has(refreshToken)) {
         return {
           success: false,
-          error: "Refresh token has been revoked",
+          error: 'Refresh token has been revoked',
         };
       }
 
@@ -213,7 +215,7 @@ export class DefaultTokenManager implements TokenManager {
       );
       const expiresIn = Math.floor(this.accessTokenLifetime / 1000);
 
-      this.logger.debug("Access token refreshed", {
+      this.logger.debug('Access token refreshed', {
         userId: claims.sub,
         sessionId: claims.sessionId,
       });
@@ -224,12 +226,12 @@ export class DefaultTokenManager implements TokenManager {
         expiresIn,
       };
     } catch (error) {
-      this.logger.warn("Token refresh failed", {
+      this.logger.warn('Token refresh failed', {
         error: (error as Error).message,
       });
       return {
         success: false,
-        error: "Token refresh error",
+        error: 'Token refresh error',
       };
     }
   }
@@ -240,14 +242,14 @@ export class DefaultTokenManager implements TokenManager {
     // In production, this should persist to a database or Redis
     // For now, we store in memory
 
-    this.logger.info("Token revoked", {
-      tokenPrefix: token.substring(0, 10) + "...",
+    this.logger.info('Token revoked', {
+      tokenPrefix: `${token.substring(0, 10) }...`,
     });
   }
 
   async decodeToken(token: string): Promise<TokenClaims | null> {
     try {
-      const parts = token.split(".");
+      const parts = token.split('.');
       if (parts.length !== 3) {
         return null;
       }
@@ -257,7 +259,7 @@ export class DefaultTokenManager implements TokenManager {
         return null;
       }
 
-      const decoded = Buffer.from(payload, "base64url").toString("utf8");
+      const decoded = Buffer.from(payload, 'base64url').toString('utf8');
       const claims = JSON.parse(decoded) as TokenClaims;
 
       return claims;
@@ -268,45 +270,45 @@ export class DefaultTokenManager implements TokenManager {
 
   private createJWT(claims: TokenClaims, secret: string): string {
     const header = {
-      alg: "HS256",
-      typ: "JWT",
+      alg: 'HS256',
+      typ: 'JWT',
     };
 
     const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
-      "base64url",
+      'base64url',
     );
     const encodedPayload = Buffer.from(JSON.stringify(claims)).toString(
-      "base64url",
+      'base64url',
     );
 
     const data = `${encodedHeader}.${encodedPayload}`;
-    const signature = createHmac("sha256", secret)
+    const signature = createHmac('sha256', secret)
       .update(data)
-      .digest("base64url");
+      .digest('base64url');
 
     return `${data}.${signature}`;
   }
 
   private verifyJWT(token: string, secret: string): TokenClaims | null {
     try {
-      const parts = token.split(".");
+      const parts = token.split('.');
       if (parts.length !== 3) {
         return null;
       }
 
       const [encodedHeader, encodedPayload, providedSignature] = parts;
       const data = `${encodedHeader}.${encodedPayload}`;
-      const expectedSignature = createHmac("sha256", secret)
+      const expectedSignature = createHmac('sha256', secret)
         .update(data)
-        .digest("base64url");
+        .digest('base64url');
 
       // Timing-safe comparison
       if (!providedSignature || !expectedSignature) {
         return null;
       }
 
-      const providedSigBuffer = Buffer.from(providedSignature, "base64url");
-      const expectedSigBuffer = Buffer.from(expectedSignature, "base64url");
+      const providedSigBuffer = Buffer.from(providedSignature, 'base64url');
+      const expectedSigBuffer = Buffer.from(expectedSignature, 'base64url');
 
       if (providedSigBuffer.length !== expectedSigBuffer.length) {
         return null;
@@ -320,7 +322,7 @@ export class DefaultTokenManager implements TokenManager {
         return null;
       }
 
-      const payload = Buffer.from(encodedPayload, "base64url").toString("utf8");
+      const payload = Buffer.from(encodedPayload, 'base64url').toString('utf8');
       const claims = JSON.parse(payload) as TokenClaims;
 
       return claims;

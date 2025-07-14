@@ -3,17 +3,19 @@
  * @xala-technologies/authentication
  */
 
-import { randomBytes, randomUUID } from "crypto";
-import { Logger, EventCore } from "../foundation-mock.js"
-import type { SessionInfo, UserProfile, ClientInfo } from "../types/index.js";
-import type { SessionManager, SessionStorage } from "./types.js";
+import { randomBytes, randomUUID } from 'crypto';
+
+import { Logger, EventCore } from '../foundation-mock.js';
+import type { SessionInfo, UserProfile, ClientInfo } from '../types/index.js';
+
+import type { SessionManager, SessionStorage } from './types.js';
 
 export class DefaultSessionManager implements SessionManager {
-  private storage: SessionStorage;
-  private logger: Logger;
-  private events: EventCore;
-  private sessionTimeout: number;
-  private maxConcurrentSessions: number;
+  private readonly storage: SessionStorage;
+  private readonly logger: Logger;
+  private readonly events: EventCore;
+  private readonly sessionTimeout: number;
+  private readonly maxConcurrentSessions: number;
 
   constructor(
     storage: SessionStorage,
@@ -59,8 +61,8 @@ export class DefaultSessionManager implements SessionManager {
     // Emit session created event
     const eventData = {
       id: `auth-${sessionId}`,
-      type: "authentication.session.created",
-      source: "authentication-service",
+      type: 'authentication.session.created',
+      source: 'authentication-service',
       timestamp: now,
       data: {
         userId: user.id,
@@ -73,9 +75,9 @@ export class DefaultSessionManager implements SessionManager {
       sessionId,
     };
 
-    await this.events.emit("authentication.session.created", eventData);
+    await this.events.emit('authentication.session.created', eventData);
 
-    this.logger.info("Session created", {
+    this.logger.info('Session created', {
       sessionId,
       userId: user.id,
       provider,
@@ -102,8 +104,8 @@ export class DefaultSessionManager implements SessionManager {
 
       const eventData = {
         id: `expire-${sessionId}`,
-        type: "authentication.session.expired",
-        source: "authentication-service",
+        type: 'authentication.session.expired',
+        source: 'authentication-service',
         timestamp: new Date(),
         data: {
           userId: session.userId,
@@ -115,7 +117,7 @@ export class DefaultSessionManager implements SessionManager {
         sessionId,
       };
 
-      await this.events.emit("authentication.session.expired", eventData);
+      await this.events.emit('authentication.session.expired', eventData);
 
       return null;
     }
@@ -141,7 +143,7 @@ export class DefaultSessionManager implements SessionManager {
 
     await this.storage.set(sessionId, updatedSession);
 
-    this.logger.debug("Session updated", {
+    this.logger.debug('Session updated', {
       sessionId,
       userId: session.userId,
       updates: Object.keys(updates),
@@ -156,8 +158,8 @@ export class DefaultSessionManager implements SessionManager {
 
       const eventData = {
         id: `logout-${sessionId}`,
-        type: "authentication.session.deleted",
-        source: "authentication-service",
+        type: 'authentication.session.deleted',
+        source: 'authentication-service',
         timestamp: new Date(),
         data: {
           userId: session.userId,
@@ -169,9 +171,9 @@ export class DefaultSessionManager implements SessionManager {
         sessionId,
       };
 
-      await this.events.emit("authentication.session.deleted", eventData);
+      await this.events.emit('authentication.session.deleted', eventData);
 
-      this.logger.info("Session deleted", {
+      this.logger.info('Session deleted', {
         sessionId,
         userId: session.userId,
         provider: session.provider,
@@ -185,9 +187,9 @@ export class DefaultSessionManager implements SessionManager {
   }
 
   async cleanupExpiredSessions(): Promise<void> {
-    this.logger.debug("Starting session cleanup");
+    this.logger.debug('Starting session cleanup');
     await this.storage.cleanup();
-    this.logger.debug("Session cleanup completed");
+    this.logger.debug('Session cleanup completed');
   }
 
   async getUserSessions(userId: string): Promise<SessionInfo[]> {
@@ -213,7 +215,7 @@ export class DefaultSessionManager implements SessionManager {
         await this.deleteSession(session.id);
       }
 
-      this.logger.info("Enforced max sessions limit", {
+      this.logger.info('Enforced max sessions limit', {
         userId,
         maxSessions,
         removedSessions: sessionsToRemove.length,
@@ -223,7 +225,7 @@ export class DefaultSessionManager implements SessionManager {
 
   private generateSessionId(): string {
     // Generate cryptographically secure session ID
-    return randomUUID() + "-" + randomBytes(16).toString("hex");
+    return `${randomUUID() }-${ randomBytes(16).toString('hex')}`;
   }
 
   static create(

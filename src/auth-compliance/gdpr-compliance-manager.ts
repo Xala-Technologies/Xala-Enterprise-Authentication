@@ -18,18 +18,72 @@ import type {
 export class DefaultGDPRComplianceManager implements GDPRComplianceManager {
   private readonly dataCategories: Map<string, DataCategory> = new Map();
   private readonly legalBasisMap: Map<string, LegalBasis> = new Map();
-  private readonly dataSubjectRights: Map<DataSubjectRightType, DataSubjectRight>;
+  private readonly dataSubjectRights: Map<
+    DataSubjectRightType,
+    DataSubjectRight
+  >;
 
   constructor() {
     // Initialize default data subject rights
     this.dataSubjectRights = new Map([
-      ['access', { type: 'access', enabled: true, automatedProcess: true, responseTime: 720 }], // 30 days
-      ['rectification', { type: 'rectification', enabled: true, automatedProcess: false, responseTime: 720 }],
-      ['erasure', { type: 'erasure', enabled: true, automatedProcess: false, responseTime: 720 }],
-      ['portability', { type: 'portability', enabled: true, automatedProcess: true, responseTime: 720 }],
-      ['restriction', { type: 'restriction', enabled: true, automatedProcess: false, responseTime: 168 }], // 7 days
-      ['objection', { type: 'objection', enabled: true, automatedProcess: false, responseTime: 168 }],
-      ['automated_decision_making', { type: 'automated_decision_making', enabled: false }],
+      [
+        'access',
+        {
+          type: 'access',
+          enabled: true,
+          automatedProcess: true,
+          responseTime: 720,
+        },
+      ], // 30 days
+      [
+        'rectification',
+        {
+          type: 'rectification',
+          enabled: true,
+          automatedProcess: false,
+          responseTime: 720,
+        },
+      ],
+      [
+        'erasure',
+        {
+          type: 'erasure',
+          enabled: true,
+          automatedProcess: false,
+          responseTime: 720,
+        },
+      ],
+      [
+        'portability',
+        {
+          type: 'portability',
+          enabled: true,
+          automatedProcess: true,
+          responseTime: 720,
+        },
+      ],
+      [
+        'restriction',
+        {
+          type: 'restriction',
+          enabled: true,
+          automatedProcess: false,
+          responseTime: 168,
+        },
+      ], // 7 days
+      [
+        'objection',
+        {
+          type: 'objection',
+          enabled: true,
+          automatedProcess: false,
+          responseTime: 168,
+        },
+      ],
+      [
+        'automated_decision_making',
+        { type: 'automated_decision_making', enabled: false },
+      ],
     ]);
 
     // Initialize common data categories
@@ -68,13 +122,15 @@ export class DefaultGDPRComplianceManager implements GDPRComplianceManager {
 
     // Check data subject rights implementation
     const rights = await this.checkDataSubjectRights();
-    const missingRights = rights.filter(r => !r.enabled && r.type !== 'automated_decision_making');
+    const missingRights = rights.filter(
+      (r) => !r.enabled && r.type !== 'automated_decision_making',
+    );
     if (missingRights.length > 0) {
       issues.push({
         id: 'gdpr-data-subject-rights',
         severity: 'HIGH',
         category: 'Data Subject Rights',
-        description: `Missing implementation for data subject rights: ${missingRights.map(r => r.type).join(', ')}`,
+        description: `Missing implementation for data subject rights: ${missingRights.map((r) => r.type).join(', ')}`,
         recommendation: 'Implement all required data subject rights',
         reference: 'GDPR Chapter III',
       });
@@ -86,16 +142,18 @@ export class DefaultGDPRComplianceManager implements GDPRComplianceManager {
   async getComplianceReport(): Promise<ComplianceReport> {
     const compliant = await this.checkCompliance();
     const issues: ComplianceIssue[] = [];
-    
+
     // Detailed compliance checks
     const dataMinimizationOk = await this.checkDataMinimization();
     const rights = await this.checkDataSubjectRights();
-    
+
     // Build compliance status
     const compliance: Record<string, boolean> = {
       dataMinimization: dataMinimizationOk,
       legalBasis: this.legalBasisMap.size === this.dataCategories.size,
-      dataSubjectRights: rights.every(r => r.enabled || r.type === 'automated_decision_making'),
+      dataSubjectRights: rights.every(
+        (r) => r.enabled || r.type === 'automated_decision_making',
+      ),
       privacyByDesign: true, // Assumed based on architecture
       dataProtectionOfficer: false, // Not implemented
       dataBreachNotification: true, // 72-hour notification capability
@@ -108,7 +166,8 @@ export class DefaultGDPRComplianceManager implements GDPRComplianceManager {
       recommendations.push({
         priority: 'MEDIUM' as const,
         category: 'Governance',
-        action: 'Appoint a Data Protection Officer if processing large scale sensitive data',
+        action:
+          'Appoint a Data Protection Officer if processing large scale sensitive data',
         effort: 'LOW' as const,
         impact: 'HIGH' as const,
       });
@@ -158,7 +217,7 @@ Contact: privacy@xala.no
 ## Data Processing
 
 ### Categories of Personal Data
-${categories.map(cat => `- **${cat.name}**: ${cat.purpose}`).join('\n')}
+${categories.map((cat) => `- **${cat.name}**: ${cat.purpose}`).join('\n')}
 
 ### Legal Basis
 We process your personal data based on the following legal grounds:
@@ -168,7 +227,10 @@ We process your personal data based on the following legal grounds:
 
 ### Your Rights
 Under GDPR, you have the following rights:
-${rights.filter(r => r.enabled).map(r => `- Right to ${r.type.replace('_', ' ')}`).join('\n')}
+${rights
+    .filter((r) => r.enabled)
+    .map((r) => `- Right to ${r.type.replace('_', ' ')}`)
+    .join('\n')}
 
 ### Data Retention
 Personal data is retained only as long as necessary for the purposes stated above or as required by law.
@@ -183,9 +245,12 @@ Last updated: ${new Date().toISOString().split('T')[0]}
 `;
   }
 
-  async handleDataRequest(type: DataSubjectRightType, userId: string): Promise<void> {
+  async handleDataRequest(
+    type: DataSubjectRightType,
+    userId: string,
+  ): Promise<void> {
     const right = this.dataSubjectRights.get(type);
-    if (!right || !right.enabled) {
+    if (!right?.enabled) {
       throw new Error(`Data subject right ${type} is not available`);
     }
 
@@ -197,22 +262,22 @@ Last updated: ${new Date().toISOString().split('T')[0]}
         // Generate data export for user
         await this.handleAccessRequest(userId);
         break;
-      
+
       case 'erasure':
         // Delete user data (right to be forgotten)
         await this.handleErasureRequest(userId);
         break;
-      
+
       case 'portability':
         // Export data in machine-readable format
         await this.handlePortabilityRequest(userId);
         break;
-      
+
       case 'rectification':
         // Update incorrect data
         await this.handleRectificationRequest(userId);
         break;
-      
+
       default:
         throw new Error(`Handler not implemented for ${type}`);
     }

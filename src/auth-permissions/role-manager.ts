@@ -22,7 +22,7 @@ export class DefaultRoleManager implements RoleManager {
     }
 
     this.roles.set(role.id, role);
-    
+
     // Update permission index
     for (const permission of role.permissions) {
       this.addToIndex(this.permissionIndex, permission, role.id);
@@ -79,7 +79,9 @@ export class DefaultRoleManager implements RoleManager {
     // Check if any roles inherit from this one
     for (const [otherId, otherRole] of this.roles) {
       if (otherRole.inheritsFrom?.includes(id)) {
-        throw new Error(`Cannot delete role ${id}: role ${otherId} inherits from it`);
+        throw new Error(
+          `Cannot delete role ${id}: role ${otherId} inherits from it`,
+        );
       }
     }
 
@@ -112,12 +114,14 @@ export class DefaultRoleManager implements RoleManager {
     return Array.from(this.roles.values());
   }
 
-  async getEffectivePermissions(roleIds: readonly string[]): Promise<readonly string[]> {
+  async getEffectivePermissions(
+    roleIds: readonly string[],
+  ): Promise<readonly string[]> {
     const allPermissions = new Set<string>();
 
     for (const roleId of roleIds) {
       const effectiveRoles = this.getEffectiveRoles(roleId);
-      
+
       for (const effectiveRoleId of effectiveRoles) {
         const role = this.roles.get(effectiveRoleId);
         if (role) {
@@ -140,19 +144,19 @@ export class DefaultRoleManager implements RoleManager {
 
     const effective = new Set<string>();
     const visited = new Set<string>();
-    
+
     this.collectEffectiveRoles(roleId, effective, visited);
-    
+
     // Cache result
     this.inheritanceCache.set(roleId, effective);
-    
+
     return effective;
   }
 
   private collectEffectiveRoles(
     roleId: string,
     effective: Set<string>,
-    visited: Set<string>
+    visited: Set<string>,
   ): void {
     if (visited.has(roleId)) {
       return;
@@ -169,14 +173,19 @@ export class DefaultRoleManager implements RoleManager {
     }
   }
 
-  private validateInheritance(roleId: string, inheritsFrom: readonly string[]): void {
+  private validateInheritance(
+    roleId: string,
+    inheritsFrom: readonly string[],
+  ): void {
     for (const parentId of inheritsFrom) {
       if (!this.roles.has(parentId)) {
         throw new Error(`Cannot inherit from non-existent role ${parentId}`);
       }
 
       if (this.wouldCreateCycle(roleId, parentId)) {
-        throw new Error(`Inheritance would create a cycle: ${roleId} -> ${parentId}`);
+        throw new Error(
+          `Inheritance would create a cycle: ${roleId} -> ${parentId}`,
+        );
       }
     }
   }
@@ -186,7 +195,11 @@ export class DefaultRoleManager implements RoleManager {
     return this.hasCycle(parentId, childId, visited);
   }
 
-  private hasCycle(current: string, target: string, visited: Set<string>): boolean {
+  private hasCycle(
+    current: string,
+    target: string,
+    visited: Set<string>,
+  ): boolean {
     if (current === target) {
       return true;
     }
@@ -209,7 +222,11 @@ export class DefaultRoleManager implements RoleManager {
     return false;
   }
 
-  private addToIndex(index: Map<string, Set<string>>, key: string, value: string): void {
+  private addToIndex(
+    index: Map<string, Set<string>>,
+    key: string,
+    value: string,
+  ): void {
     let set = index.get(key);
     if (!set) {
       set = new Set<string>();
@@ -218,7 +235,11 @@ export class DefaultRoleManager implements RoleManager {
     set.add(value);
   }
 
-  private removeFromIndex(index: Map<string, Set<string>>, key: string, value: string): void {
+  private removeFromIndex(
+    index: Map<string, Set<string>>,
+    key: string,
+    value: string,
+  ): void {
     const set = index.get(key);
     if (set) {
       set.delete(value);

@@ -36,9 +36,20 @@ export interface Role {
  * Permission condition
  */
 export interface PermissionCondition {
-  readonly type: 'ownership' | 'time' | 'location' | 'classification' | 'custom';
+  readonly type:
+    | 'ownership'
+    | 'time'
+    | 'location'
+    | 'classification'
+    | 'custom';
   readonly field?: string;
-  readonly operator: 'equals' | 'not_equals' | 'in' | 'not_in' | 'greater_than' | 'less_than';
+  readonly operator:
+    | 'equals'
+    | 'not_equals'
+    | 'in'
+    | 'not_in'
+    | 'greater_than'
+    | 'less_than';
   readonly value: unknown;
 }
 
@@ -90,7 +101,9 @@ export interface RoleManager {
   getRole(id: string): Promise<Role | null>;
   getRolesByPermission(permissionId: string): Promise<readonly Role[]>;
   getAllRoles(): Promise<readonly Role[]>;
-  getEffectivePermissions(roleIds: readonly string[]): Promise<readonly string[]>;
+  getEffectivePermissions(
+    roleIds: readonly string[],
+  ): Promise<readonly string[]>;
 }
 
 /**
@@ -109,15 +122,15 @@ export interface RBACService {
   readonly permissions: PermissionManager;
   readonly roles: RoleManager;
   readonly evaluator: PermissionEvaluator;
-  
+
   assignRoleToUser(userId: string, roleId: string): Promise<void>;
   removeRoleFromUser(userId: string, roleId: string): Promise<void>;
   getUserRoles(userId: string): Promise<readonly Role[]>;
-  
+
   grantPermissionToUser(userId: string, permissionId: string): Promise<void>;
   revokePermissionFromUser(userId: string, permissionId: string): Promise<void>;
   getUserPermissions(userId: string): Promise<readonly Permission[]>;
-  
+
   checkAccess(context: PermissionContext): Promise<PermissionResult>;
 }
 
@@ -130,20 +143,20 @@ export const CommonPermissions = {
   WRITE: 'write',
   UPDATE: 'update',
   DELETE: 'delete',
-  
+
   // Admin permissions
   ADMIN_READ: 'admin:read',
   ADMIN_WRITE: 'admin:write',
   ADMIN_DELETE: 'admin:delete',
   ADMIN_MANAGE_USERS: 'admin:manage_users',
   ADMIN_MANAGE_ROLES: 'admin:manage_roles',
-  
+
   // GDPR permissions
   GDPR_READ_PERSONAL_DATA: 'gdpr:read_personal_data',
   GDPR_EXPORT_DATA: 'gdpr:export_data',
   GDPR_DELETE_DATA: 'gdpr:delete_data',
   GDPR_PROCESS_DATA: 'gdpr:process_data',
-  
+
   // Norwegian government specific
   CITIZEN_READ_OWN_DATA: 'citizen:read_own_data',
   CITIZEN_UPDATE_OWN_DATA: 'citizen:update_own_data',
@@ -159,13 +172,13 @@ export const CommonRoles = {
   USER: 'user',
   ADMIN: 'admin',
   GUEST: 'guest',
-  
+
   // Norwegian government roles
   CITIZEN: 'citizen',
   GOVERNMENT_EMPLOYEE: 'government_employee',
   CASE_WORKER: 'case_worker',
   DATA_CONTROLLER: 'data_controller',
-  
+
   // System roles
   SYSTEM_ADMIN: 'system_admin',
   SECURITY_OFFICER: 'security_officer',

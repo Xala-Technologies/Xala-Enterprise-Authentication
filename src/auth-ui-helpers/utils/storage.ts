@@ -4,12 +4,12 @@
  * Enterprise Standards v4.0.0 compliant
  */
 
-import type { ValidationResult } from '../../types/index';
+import type { ValidationResult } from "../../types/index";
 
 /**
  * Storage prefix to prevent key collisions (enterprise security pattern)
  */
-const STORAGE_PREFIX = 'xala-auth-';
+const STORAGE_PREFIX = "xala-auth-";
 
 /**
  * Maximum key length to prevent DoS attacks
@@ -49,26 +49,36 @@ export class SecureStorage {
    * Validate storage key for security (prevent injection attacks)
    */
   private static validateKey(key: string): ValidationResult<string> {
-    if (typeof key !== 'string') {
-      return { success: false, error: 'Key must be a string' };
+    if (typeof key !== "string") {
+      return { success: false, error: "Key must be a string" };
     }
 
     if (key.length === 0) {
-      return { success: false, error: 'Key cannot be empty' };
+      return { success: false, error: "Key cannot be empty" };
     }
 
     if (key.length > MAX_KEY_LENGTH) {
-      return { success: false, error: `Key length exceeds maximum of ${MAX_KEY_LENGTH}` };
+      return {
+        success: false,
+        error: `Key length exceeds maximum of ${MAX_KEY_LENGTH}`,
+      };
     }
 
     // Prevent prototype pollution and injection attacks
-    if (key.includes('__proto__') || key.includes('constructor') || key.includes('prototype')) {
-      return { success: false, error: 'Invalid key: contains forbidden patterns' };
+    if (
+      key.includes("__proto__") ||
+      key.includes("constructor") ||
+      key.includes("prototype")
+    ) {
+      return {
+        success: false,
+        error: "Invalid key: contains forbidden patterns",
+      };
     }
 
     // Validate key format (alphanumeric, dash, underscore only)
     if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
-      return { success: false, error: 'Key contains invalid characters' };
+      return { success: false, error: "Key contains invalid characters" };
     }
 
     return { success: true, data: key };
@@ -77,11 +87,11 @@ export class SecureStorage {
   /**
    * Check if storage is available (enterprise pattern)
    */
-  private static isAvailable(type: 'localStorage' | 'sessionStorage'): boolean {
+  private static isAvailable(type: "localStorage" | "sessionStorage"): boolean {
     try {
       const storage = window[type];
-      const testKey = '__test__';
-      storage.setItem(testKey, 'test');
+      const testKey = "__test__";
+      storage.setItem(testKey, "test");
       storage.removeItem(testKey);
       return true;
     } catch {
@@ -93,12 +103,12 @@ export class SecureStorage {
    * Set item with type safety and security validation
    */
   static setItem<T>(
-    key: string, 
-    value: T, 
-    options: StorageOptions & { useSession?: boolean } = {}
+    key: string,
+    value: T,
+    options: StorageOptions & { useSession?: boolean } = {},
   ): ValidationResult<void> {
     const { useSession = false, ttl, ...storageOptions } = options;
-    
+
     // Validate key
     const keyValidation = this.validateKey(key);
     if (!keyValidation.success) {
@@ -106,29 +116,36 @@ export class SecureStorage {
     }
 
     const storage = useSession ? sessionStorage : localStorage;
-    if (!this.isAvailable(useSession ? 'sessionStorage' : 'localStorage')) {
-      return { success: false, error: 'Storage not available' };
+    if (!this.isAvailable(useSession ? "sessionStorage" : "localStorage")) {
+      return { success: false, error: "Storage not available" };
     }
 
     try {
       const storedData: StoredData<T> = {
         value,
         timestamp: Date.now(),
-        version: '1.0.0',
+        version: "1.0.0",
       };
 
       const serialized = JSON.stringify(storedData);
-      
+
       // Check size limits
       if (serialized.length > MAX_VALUE_SIZE) {
-        return { success: false, error: `Value size exceeds maximum of ${MAX_VALUE_SIZE} bytes` };
+        return {
+          success: false,
+          error: `Value size exceeds maximum of ${MAX_VALUE_SIZE} bytes`,
+        };
       }
 
       storage.setItem(STORAGE_PREFIX + keyValidation.data, serialized);
       return { success: true, data: undefined };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown storage error';
-      return { success: false, error: `Failed to save to storage: ${errorMessage}` };
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown storage error";
+      return {
+        success: false,
+        error: `Failed to save to storage: ${errorMessage}`,
+      };
     }
   }
 
@@ -136,11 +153,11 @@ export class SecureStorage {
    * Get item with type safety and validation
    */
   static getItem<T>(
-    key: string, 
-    options: { useSession?: boolean; maxAge?: number } = {}
+    key: string,
+    options: { useSession?: boolean; maxAge?: number } = {},
   ): ValidationResult<T | null> {
     const { useSession = false, maxAge } = options;
-    
+
     // Validate key
     const keyValidation = this.validateKey(key);
     if (!keyValidation.success) {
@@ -148,8 +165,8 @@ export class SecureStorage {
     }
 
     const storage = useSession ? sessionStorage : localStorage;
-    if (!this.isAvailable(useSession ? 'sessionStorage' : 'localStorage')) {
-      return { success: false, error: 'Storage not available' };
+    if (!this.isAvailable(useSession ? "sessionStorage" : "localStorage")) {
+      return { success: false, error: "Storage not available" };
     }
 
     try {
@@ -159,7 +176,7 @@ export class SecureStorage {
       }
 
       const storedData: StoredData<T> = JSON.parse(item);
-      
+
       // Check if data has expired
       if (maxAge && Date.now() - storedData.timestamp > maxAge) {
         // Clean up expired data
@@ -168,14 +185,22 @@ export class SecureStorage {
       }
 
       // Validate stored data structure
-      if (!storedData || typeof storedData.timestamp !== 'number' || !storedData.version) {
-        return { success: false, error: 'Invalid stored data format' };
+      if (
+        !storedData ||
+        typeof storedData.timestamp !== "number" ||
+        !storedData.version
+      ) {
+        return { success: false, error: "Invalid stored data format" };
       }
 
       return { success: true, data: storedData.value };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown storage error';
-      return { success: false, error: `Failed to read from storage: ${errorMessage}` };
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown storage error";
+      return {
+        success: false,
+        error: `Failed to read from storage: ${errorMessage}`,
+      };
     }
   }
 
@@ -189,16 +214,20 @@ export class SecureStorage {
     }
 
     const storage = useSession ? sessionStorage : localStorage;
-    if (!this.isAvailable(useSession ? 'sessionStorage' : 'localStorage')) {
-      return { success: false, error: 'Storage not available' };
+    if (!this.isAvailable(useSession ? "sessionStorage" : "localStorage")) {
+      return { success: false, error: "Storage not available" };
     }
 
     try {
       storage.removeItem(STORAGE_PREFIX + keyValidation.data);
       return { success: true, data: undefined };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown storage error';
-      return { success: false, error: `Failed to remove from storage: ${errorMessage}` };
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown storage error";
+      return {
+        success: false,
+        error: `Failed to remove from storage: ${errorMessage}`,
+      };
     }
   }
 
@@ -207,16 +236,16 @@ export class SecureStorage {
    */
   static clear(useSession = false): ValidationResult<number> {
     const storage = useSession ? sessionStorage : localStorage;
-    if (!this.isAvailable(useSession ? 'sessionStorage' : 'localStorage')) {
-      return { success: false, error: 'Storage not available' };
+    if (!this.isAvailable(useSession ? "sessionStorage" : "localStorage")) {
+      return { success: false, error: "Storage not available" };
     }
 
     try {
       // Only clear our prefixed keys (security best practice)
       const keys = Object.keys(storage);
       let removedCount = 0;
-      
-      keys.forEach(key => {
+
+      keys.forEach((key) => {
         if (key.startsWith(STORAGE_PREFIX)) {
           storage.removeItem(key);
           removedCount++;
@@ -225,8 +254,12 @@ export class SecureStorage {
 
       return { success: true, data: removedCount };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown storage error';
-      return { success: false, error: `Failed to clear storage: ${errorMessage}` };
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown storage error";
+      return {
+        success: false,
+        error: `Failed to clear storage: ${errorMessage}`,
+      };
     }
   }
 }
@@ -243,14 +276,14 @@ export class CookieStorage {
       path?: string;
       domain?: string;
       secure?: boolean;
-      sameSite?: 'strict' | 'lax' | 'none';
-    } = {}
+      sameSite?: "strict" | "lax" | "none";
+    } = {},
   ): void {
     const {
       expires = 7,
-      path = '/',
+      path = "/",
       secure = true,
-      sameSite = 'strict',
+      sameSite = "strict",
     } = options;
 
     const date = new Date();
@@ -260,7 +293,7 @@ export class CookieStorage {
     cookie += `; expires=${date.toUTCString()}`;
     cookie += `; path=${path}`;
     if (options.domain) cookie += `; domain=${options.domain}`;
-    if (secure) cookie += '; secure';
+    if (secure) cookie += "; secure";
     cookie += `; samesite=${sameSite}`;
 
     document.cookie = cookie;
@@ -268,7 +301,7 @@ export class CookieStorage {
 
   static get(name: string): string | null {
     const nameEQ = `${STORAGE_PREFIX}${name}=`;
-    const cookies = document.cookie.split(';');
+    const cookies = document.cookie.split(";");
 
     for (const cookie of cookies) {
       const trimmed = cookie.trim();
@@ -280,8 +313,8 @@ export class CookieStorage {
     return null;
   }
 
-  static remove(name: string, path = '/'): void {
-    this.set(name, '', { expires: -1, path });
+  static remove(name: string, path = "/"): void {
+    this.set(name, "", { expires: -1, path });
   }
 }
 
@@ -300,13 +333,15 @@ export interface AuthStorageService {
 /**
  * Create local storage service
  */
-export function createAuthStorage(type: 'local' | 'session' | 'memory' = 'local'): AuthStorageService {
+export function createAuthStorage(
+  type: "local" | "session" | "memory" = "local",
+): AuthStorageService {
   switch (type) {
-    case 'local':
+    case "local":
       return createLocalStorageService();
-    case 'session':
+    case "session":
       return createSessionStorageService();
-    case 'memory':
+    case "memory":
       return createMemoryStorageService();
     default:
       throw new Error(`Unsupported storage type: ${type}`);
@@ -369,13 +404,13 @@ export function createMemoryStorageService(): AuthStorageService {
       const storedData: StoredData<T> = {
         value,
         timestamp: Date.now(),
-        version: '1.0.0',
+        version: "1.0.0",
       };
 
       memoryStore.set(STORAGE_PREFIX + keyValidation.data, storedData);
       return { success: true, data: undefined };
     },
-    
+
     getItem<T>(key: string): ValidationResult<T | null> {
       const keyValidation = (SecureStorage as any).validateKey(key);
       if (!keyValidation.success) {
@@ -389,7 +424,7 @@ export function createMemoryStorageService(): AuthStorageService {
 
       return { success: true, data: storedData.value as T };
     },
-    
+
     removeItem(key: string): ValidationResult<void> {
       const keyValidation = (SecureStorage as any).validateKey(key);
       if (!keyValidation.success) {
@@ -399,7 +434,7 @@ export function createMemoryStorageService(): AuthStorageService {
       memoryStore.delete(STORAGE_PREFIX + keyValidation.data);
       return { success: true, data: undefined };
     },
-    
+
     clear(): ValidationResult<number> {
       const keysToRemove: string[] = [];
       for (const key of memoryStore.keys()) {
@@ -408,7 +443,7 @@ export function createMemoryStorageService(): AuthStorageService {
         }
       }
 
-      keysToRemove.forEach(key => memoryStore.delete(key));
+      keysToRemove.forEach((key) => memoryStore.delete(key));
       return { success: true, data: keysToRemove.length };
     },
   };

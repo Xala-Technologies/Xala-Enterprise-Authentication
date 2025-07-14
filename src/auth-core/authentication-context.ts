@@ -3,8 +3,9 @@
  * @xala-technologies/authentication
  */
 
-import type { UserProfile, SessionInfo } from "../types/index.js";
-import type { AuthenticationContext } from "./types.js";
+import type { UserProfile, SessionInfo } from '../types/index.js';
+
+import type { AuthenticationContext } from './types.js';
 
 export class DefaultAuthenticationContext implements AuthenticationContext {
   public currentUser: UserProfile | null = null;
@@ -39,10 +40,10 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
   }
 
   canAccess(
-    nsmLevel: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET",
+    nsmLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
   ): boolean {
     if (!this.currentUser) {
-      return nsmLevel === "OPEN";
+      return nsmLevel === 'OPEN';
     }
 
     const userLevel = this.currentUser.nsmClassification;
@@ -58,10 +59,10 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
   }
 
   private hasAccessToLevel(
-    userLevel: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET",
-    requiredLevel: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET",
+    userLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
+    requiredLevel: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
   ): boolean {
-    const levels = ["OPEN", "RESTRICTED", "CONFIDENTIAL", "SECRET"];
+    const levels = ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'];
     const userLevelIndex = levels.indexOf(userLevel);
     const requiredLevelIndex = levels.indexOf(requiredLevel);
 
@@ -70,23 +71,23 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
   }
 
   private getMostRestrictiveLevel(
-    level1: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET",
-    level2?: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET",
-  ): "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET" {
+    level1: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
+    level2?: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET',
+  ): 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET' {
     if (!level2) {
       return level1;
     }
 
-    const levels = ["OPEN", "RESTRICTED", "CONFIDENTIAL", "SECRET"];
+    const levels = ['OPEN', 'RESTRICTED', 'CONFIDENTIAL', 'SECRET'];
     const index1 = levels.indexOf(level1);
     const index2 = levels.indexOf(level2);
 
     // Return the level with lower clearance (higher restriction)
     return levels[Math.min(index1, index2)] as
-      | "OPEN"
-      | "RESTRICTED"
-      | "CONFIDENTIAL"
-      | "SECRET";
+      | 'OPEN'
+      | 'RESTRICTED'
+      | 'CONFIDENTIAL'
+      | 'SECRET';
   }
 
   setUser(user: UserProfile | null): void {
@@ -113,7 +114,7 @@ export class DefaultAuthenticationContext implements AuthenticationContext {
     user: UserProfile | null;
     session: SessionInfo | null;
     isAuthenticated: boolean;
-  } {
+    } {
     return {
       user: this.currentUser,
       session: this.currentSession,

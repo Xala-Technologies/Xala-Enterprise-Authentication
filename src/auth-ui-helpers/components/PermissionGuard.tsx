@@ -5,8 +5,12 @@
  */
 
 import React from 'react';
-import type { PermissionGuardProps } from '../types.js';
+
+import { useAuth } from '../hooks/useAuth.js';
 import { usePermission } from '../hooks/usePermission.js';
+import type { PermissionGuardProps } from '../types.js';
+
+// Import useAuth here to avoid circular dependency
 
 export function PermissionGuard({
   children,
@@ -51,7 +55,7 @@ export function HideIfPermitted({
   children: React.ReactNode;
 }) {
   const { checkPermission, user } = useAuth();
-  
+
   if (user && checkPermission(permission)) {
     return null;
   }
@@ -77,6 +81,3 @@ export function PermissionSwitch({
     </PermissionGuard>
   );
 }
-
-// Import useAuth here to avoid circular dependency
-import { useAuth } from '../hooks/useAuth.js';

@@ -12,7 +12,7 @@ export type {
   SessionInfo,
 } from './types/index.js';
 
-// Core Services  
+// Core Services
 export {
   createAuthenticationService,
   createTestAuthenticationService,
@@ -45,7 +45,4 @@ export {
   checkNSMClassificationAccess,
 } from './utils/norwegian-compliance.js';
 
-export {
-  isValidUrl,
-  validateRequiredFields,
-} from './utils/type-safety.js';
+export { isValidUrl, validateRequiredFields } from './utils/type-safety.js';

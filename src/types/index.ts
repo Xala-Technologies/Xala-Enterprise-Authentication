@@ -3,14 +3,18 @@
  */
 
 // NSM Classification Type
-export type NSMClassification = "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+export type NSMClassification =
+  | 'OPEN'
+  | 'RESTRICTED'
+  | 'CONFIDENTIAL'
+  | 'SECRET';
 
 // Base Configuration Types
 export interface NorwegianCompliance {
   nsmClassification: NSMClassification;
   gdprCompliant: boolean;
-  wcagLevel: "A" | "AA" | "AAA";
-  supportedLanguages: ["nb-NO", "en-US", "fr-FR", "ar-SA"];
+  wcagLevel: 'A' | 'AA' | 'AAA';
+  supportedLanguages: ['nb-NO', 'en-US', 'fr-FR', 'ar-SA'];
   auditTrail: boolean;
 }
 
@@ -34,7 +38,7 @@ export interface AuthenticationConfig extends NorwegianCompliance {
 }
 
 export interface SessionStorageConfig {
-  type: "memory" | "redis" | "database";
+  type: 'memory' | 'redis' | 'database';
   connectionString?: string;
   prefix?: string;
   ttl?: number;
@@ -67,7 +71,7 @@ export interface AuthenticationRequest {
   provider: string;
   credentials: Record<string, unknown>;
   clientInfo: ClientInfo;
-  nsmClassification?: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+  nsmClassification?: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
 }
 
 export interface AuthenticationResult {
@@ -94,7 +98,7 @@ export interface UserProfile {
   name?: string;
   roles: string[];
   permissions: string[];
-  nsmClassification: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+  nsmClassification: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
   norwegianPersonalNumber?: string | undefined; // For Norwegian government integration
   organizationUnit?: string | undefined; // For municipal hierarchy
   metadata: Record<string, unknown>;
@@ -108,7 +112,7 @@ export interface SessionInfo {
   lastAccessedAt: Date;
   expiresAt: Date;
   clientInfo: ClientInfo;
-  nsmClassification: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+  nsmClassification: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
 }
 
 export interface ClientInfo {
@@ -131,18 +135,18 @@ export interface ProviderConfig {
 }
 
 export type ProviderType =
-  | "norwegian-id"
-  | "oauth"
-  | "oidc"
-  | "saml"
-  | "eidas"
-  | "norwegian-idporten" // Legacy
-  | "norwegian-bankid"  // Legacy
-  | "norwegian-feide"   // Legacy
-  | "norwegian-minid"   // Legacy
-  | "oauth2"            // Legacy
-  | "ldap"
-  | "local";
+  | 'norwegian-id'
+  | 'oauth'
+  | 'oidc'
+  | 'saml'
+  | 'eidas'
+  | 'norwegian-idporten' // Legacy
+  | 'norwegian-bankid' // Legacy
+  | 'norwegian-feide' // Legacy
+  | 'norwegian-minid' // Legacy
+  | 'oauth2' // Legacy
+  | 'ldap'
+  | 'local';
 
 export interface ProviderSpecificConfig {
   // OAuth2/OIDC providers
@@ -159,7 +163,7 @@ export interface ProviderSpecificConfig {
   certificate?: string;
 
   // Norwegian specific
-  levelOfAssurance?: "LOW" | "SUBSTANTIAL" | "HIGH";
+  levelOfAssurance?: 'LOW' | 'SUBSTANTIAL' | 'HIGH';
   personalNumberRequired?: boolean;
 
   // LDAP
@@ -174,7 +178,7 @@ export interface AuthenticationError {
   code: string;
   message: string;
   details?: Record<string, unknown>;
-  nsmClassification?: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+  nsmClassification?: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
 }
 
 // Token Types
@@ -189,7 +193,7 @@ export interface TokenClaims {
   // Custom claims
   roles: string[];
   permissions: string[];
-  nsmClassification: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+  nsmClassification: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
   norwegianPersonalNumber?: string | undefined;
   organizationUnit?: string | undefined;
   sessionId: string;
@@ -204,19 +208,19 @@ export interface AuthenticationEvent {
   timestamp: Date;
   clientInfo?: ClientInfo;
   metadata?: Record<string, unknown>;
-  nsmClassification: "OPEN" | "RESTRICTED" | "CONFIDENTIAL" | "SECRET";
+  nsmClassification: 'OPEN' | 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
 }
 
 export type AuthenticationEventType =
-  | "login_success"
-  | "login_failure"
-  | "logout"
-  | "session_expired"
-  | "token_refreshed"
-  | "brute_force_detected"
-  | "suspicious_activity"
-  | "gdpr_consent_given"
-  | "gdpr_consent_withdrawn";
+  | 'login_success'
+  | 'login_failure'
+  | 'logout'
+  | 'session_expired'
+  | 'token_refreshed'
+  | 'brute_force_detected'
+  | 'suspicious_activity'
+  | 'gdpr_consent_given'
+  | 'gdpr_consent_withdrawn';
 
 // Legacy compatibility
 export interface authenticationConfig extends AuthenticationConfig {}
@@ -255,15 +259,15 @@ export interface ProviderMetadata {
 
 export interface NorwegianIDSessionInfo extends SessionInfo {
   personalNumber?: string;
-  levelOfAssurance: "LOW" | "SUBSTANTIAL" | "HIGH";
+  levelOfAssurance: 'LOW' | 'SUBSTANTIAL' | 'HIGH';
 }
 
 // GDPR Types
 export interface GDPRDataRequest {
   id: string;
   userId: string;
-  requestType: "access" | "portability" | "erasure" | "rectification";
-  status: "pending" | "processing" | "completed" | "rejected";
+  requestType: 'access' | 'portability' | 'erasure' | 'rectification';
+  status: 'pending' | 'processing' | 'completed' | 'rejected';
   requestedAt: Date;
   completedAt?: Date;
   data?: Record<string, unknown>;

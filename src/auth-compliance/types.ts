@@ -58,7 +58,7 @@ export interface DataCategory {
 /**
  * Legal basis for processing
  */
-export type LegalBasis = 
+export type LegalBasis =
   | 'consent'
   | 'contract'
   | 'legal_obligation'
@@ -174,7 +174,7 @@ export interface ComplianceService {
   readonly gdpr: GDPRComplianceManager;
   readonly nsm: NSMComplianceManager;
   readonly auditor: ComplianceAuditor;
-  
+
   performAudit(request: ComplianceAuditRequest): Promise<ComplianceAuditResult>;
   getComplianceStatus(): Promise<ComplianceStatus>;
   exportComplianceReport(format: 'json' | 'pdf' | 'html'): Promise<Uint8Array>;
@@ -195,8 +195,13 @@ export interface GDPRComplianceManager extends ComplianceManager {
  * NSM compliance manager interface
  */
 export interface NSMComplianceManager extends ComplianceManager {
-  checkClassificationCompliance(data: unknown, classification: NSMClassification): Promise<boolean>;
-  getRequiredControls(classification: NSMClassification): Promise<SecurityControl[]>;
+  checkClassificationCompliance(
+    data: unknown,
+    classification: NSMClassification,
+  ): Promise<boolean>;
+  getRequiredControls(
+    classification: NSMClassification,
+  ): Promise<SecurityControl[]>;
   assessRiskLevel(): Promise<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>;
   generateSecurityReport(): Promise<string>;
 }

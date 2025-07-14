@@ -17,13 +17,16 @@ export class DefaultPermissionManager implements PermissionManager {
     }
 
     this.permissions.set(permission.id, permission);
-    
+
     // Update indices
     this.addToIndex(this.resourceIndex, permission.resource, permission.id);
     this.addToIndex(this.actionIndex, permission.action, permission.id);
   }
 
-  async updatePermission(id: string, updates: Partial<Permission>): Promise<void> {
+  async updatePermission(
+    id: string,
+    updates: Partial<Permission>,
+  ): Promise<void> {
     const existing = this.permissions.get(id);
     if (!existing) {
       throw new Error(`Permission ${id} not found`);
@@ -59,7 +62,7 @@ export class DefaultPermissionManager implements PermissionManager {
     // Remove from indices
     this.removeFromIndex(this.resourceIndex, permission.resource, id);
     this.removeFromIndex(this.actionIndex, permission.action, id);
-    
+
     this.permissions.delete(id);
   }
 
@@ -67,7 +70,9 @@ export class DefaultPermissionManager implements PermissionManager {
     return this.permissions.get(id) ?? null;
   }
 
-  async getPermissionsByResource(resource: string): Promise<readonly Permission[]> {
+  async getPermissionsByResource(
+    resource: string,
+  ): Promise<readonly Permission[]> {
     const permissionIds = this.resourceIndex.get(resource);
     if (!permissionIds) {
       return [];
@@ -105,7 +110,11 @@ export class DefaultPermissionManager implements PermissionManager {
     return Array.from(this.permissions.values());
   }
 
-  private addToIndex(index: Map<string, Set<string>>, key: string, value: string): void {
+  private addToIndex(
+    index: Map<string, Set<string>>,
+    key: string,
+    value: string,
+  ): void {
     let set = index.get(key);
     if (!set) {
       set = new Set<string>();
@@ -114,7 +123,11 @@ export class DefaultPermissionManager implements PermissionManager {
     set.add(value);
   }
 
-  private removeFromIndex(index: Map<string, Set<string>>, key: string, value: string): void {
+  private removeFromIndex(
+    index: Map<string, Set<string>>,
+    key: string,
+    value: string,
+  ): void {
     const set = index.get(key);
     if (set) {
       set.delete(value);

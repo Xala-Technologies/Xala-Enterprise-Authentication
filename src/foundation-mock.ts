@@ -11,7 +11,7 @@ export interface LoggerConfig {
 }
 
 export class Logger {
-  constructor(private config: LoggerConfig) {}
+  constructor(private readonly config: LoggerConfig) {}
 
   static create(config: LoggerConfig): Logger {
     return new Logger(config);
@@ -49,7 +49,7 @@ export interface EventConfig {
 }
 
 export class EventCore {
-  constructor(private config: EventConfig) {}
+  constructor(private readonly config: EventConfig) {}
 
   static create(config: EventConfig): EventCore {
     return new EventCore(config);

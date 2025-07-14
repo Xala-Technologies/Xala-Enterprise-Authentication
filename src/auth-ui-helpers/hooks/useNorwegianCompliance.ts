@@ -5,7 +5,9 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+
 import type { NSMClassification } from '../../types/index.js';
+
 import { useAuth } from './useAuth.js';
 
 export function useNorwegianCompliance() {
@@ -58,52 +60,59 @@ export function useNSMClassification(dataClassification?: NSMClassification) {
   const { user } = useAuth();
   const userClassification = user?.nsmClassification ?? 'OPEN';
 
-  const getClassificationColor = useCallback((classification: NSMClassification): string => {
-    switch (classification) {
-      case 'SECRET':
-        return '#dc3545'; // Red
-      case 'CONFIDENTIAL':
-        return '#fd7e14'; // Orange
-      case 'RESTRICTED':
-        return '#ffc107'; // Yellow
-      case 'OPEN':
-        return '#28a745'; // Green
-      default:
-        return '#6c757d'; // Gray
-    }
-  }, []);
+  const getClassificationColor = useCallback(
+    (classification: NSMClassification): string => {
+      switch (classification) {
+        case 'SECRET':
+          return '#dc3545'; // Red
+        case 'CONFIDENTIAL':
+          return '#fd7e14'; // Orange
+        case 'RESTRICTED':
+          return '#ffc107'; // Yellow
+        case 'OPEN':
+          return '#28a745'; // Green
+        default:
+          return '#6c757d'; // Gray
+      }
+    },
+    [],
+  );
 
-  const getClassificationLabel = useCallback((classification: NSMClassification, locale: string): string => {
-    const labels: Record<string, Record<NSMClassification, string>> = {
-      'nb-NO': {
-        'SECRET': 'HEMMELIG',
-        'CONFIDENTIAL': 'KONFIDENSIELT',
-        'RESTRICTED': 'BEGRENSET',
-        'OPEN': 'ÅPEN',
-      },
-      'nn-NO': {
-        'SECRET': 'HEMMELEG',
-        'CONFIDENTIAL': 'KONFIDENSIELT',
-        'RESTRICTED': 'AVGRENSA',
-        'OPEN': 'OPEN',
-      },
-      'en-US': {
-        'SECRET': 'SECRET',
-        'CONFIDENTIAL': 'CONFIDENTIAL',
-        'RESTRICTED': 'RESTRICTED',
-        'OPEN': 'OPEN',
-      },
-    };
+  const getClassificationLabel = useCallback(
+    (classification: NSMClassification, locale: string): string => {
+      const labels: Record<string, Record<NSMClassification, string>> = {
+        'nb-NO': {
+          SECRET: 'HEMMELIG',
+          CONFIDENTIAL: 'KONFIDENSIELT',
+          RESTRICTED: 'BEGRENSET',
+          OPEN: 'ÅPEN',
+        },
+        'nn-NO': {
+          SECRET: 'HEMMELEG',
+          CONFIDENTIAL: 'KONFIDENSIELT',
+          RESTRICTED: 'AVGRENSA',
+          OPEN: 'OPEN',
+        },
+        'en-US': {
+          SECRET: 'SECRET',
+          CONFIDENTIAL: 'CONFIDENTIAL',
+          RESTRICTED: 'RESTRICTED',
+          OPEN: 'OPEN',
+        },
+      };
 
-    return labels[locale]?.[classification] ?? classification;
-  }, []);
+      return labels[locale]?.[classification] ?? classification;
+    },
+    [],
+  );
 
   const effectiveClassification = dataClassification ?? userClassification;
 
   return {
     classification: effectiveClassification,
     color: getClassificationColor(effectiveClassification),
-    getLabel: (locale: string) => getClassificationLabel(effectiveClassification, locale),
+    getLabel: (locale: string) =>
+      getClassificationLabel(effectiveClassification, locale),
   };
 }
 
@@ -113,7 +122,9 @@ export function useNSMClassification(dataClassification?: NSMClassification) {
 export function useWCAGCompliance() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
-  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>(
+    'normal',
+  );
 
   useEffect(() => {
     // Check system preferences
@@ -124,8 +135,10 @@ export function useWCAGCompliance() {
     setHighContrast(contrastQuery.matches);
 
     // Listen for changes
-    const handleMotionChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    const handleContrastChange = (e: MediaQueryListEvent) => setHighContrast(e.matches);
+    const handleMotionChange = (e: MediaQueryListEvent) =>
+      setReducedMotion(e.matches);
+    const handleContrastChange = (e: MediaQueryListEvent) =>
+      setHighContrast(e.matches);
 
     motionQuery.addEventListener('change', handleMotionChange);
     contrastQuery.addEventListener('change', handleContrastChange);
@@ -136,14 +149,17 @@ export function useWCAGCompliance() {
     };
   }, []);
 
-  const changeFontSize = useCallback((size: 'normal' | 'large' | 'extra-large') => {
-    setFontSize(size);
-    document.documentElement.style.fontSize = {
-      'normal': '16px',
-      'large': '18px',
-      'extra-large': '20px',
-    }[size];
-  }, []);
+  const changeFontSize = useCallback(
+    (size: 'normal' | 'large' | 'extra-large') => {
+      setFontSize(size);
+      document.documentElement.style.fontSize = {
+        normal: '16px',
+        large: '18px',
+        'extra-large': '20px',
+      }[size];
+    },
+    [],
+  );
 
   return {
     reducedMotion,

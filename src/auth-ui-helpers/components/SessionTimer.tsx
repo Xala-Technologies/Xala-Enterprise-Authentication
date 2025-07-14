@@ -5,9 +5,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import type { SessionTimerProps } from '../types.js';
-import { useSession, useSessionTimer } from '../hooks/useSession.js';
+
 import { useNorwegianCompliance } from '../hooks/useNorwegianCompliance.js';
+import { useSession, useSessionTimer } from '../hooks/useSession.js';
+import type { SessionTimerProps } from '../types.js';
 
 export function SessionTimer({
   showWarning = true,
@@ -17,7 +18,11 @@ export function SessionTimer({
   className = '',
 }: SessionTimerProps) {
   const { locale } = useNorwegianCompliance();
-  const { isExpiringSoon, extendSession } = useSession({ warningTime, onExpire, onWarning });
+  const { isExpiringSoon, extendSession } = useSession({
+    warningTime,
+    onExpire,
+    onWarning,
+  });
   const { formattedTime } = useSessionTimer();
   const [showExtendDialog, setShowExtendDialog] = useState(false);
 
@@ -76,7 +81,11 @@ export function SessionTimer({
       </div>
 
       {showExtendDialog && (
-        <div className="session-warning-dialog" role="alertdialog" aria-labelledby="session-warning-title">
+        <div
+          className="session-warning-dialog"
+          role="alertdialog"
+          aria-labelledby="session-warning-title"
+        >
           <div className="dialog-overlay" onClick={handleClose} />
           <div className="dialog-content">
             <h2 id="session-warning-title">{messages.title}</h2>
@@ -89,10 +98,7 @@ export function SessionTimer({
               >
                 {messages.extend}
               </button>
-              <button
-                onClick={handleClose}
-                className="button-secondary"
-              >
+              <button onClick={handleClose} className="button-secondary">
                 {messages.logout}
               </button>
             </div>
@@ -106,9 +112,13 @@ export function SessionTimer({
 /**
  * Minimal session timer (just the countdown)
  */
-export function MinimalSessionTimer({ className = '' }: { className?: string }) {
+export function MinimalSessionTimer({
+  className = '',
+}: {
+  className?: string;
+}) {
   const { formattedTime } = useSessionTimer();
-  
+
   return (
     <span className={`session-timer-minimal ${className}`}>
       {formattedTime}

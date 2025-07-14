@@ -5,7 +5,9 @@
  */
 
 import { useMemo } from 'react';
+
 import type { UsePermissionOptions } from '../types.js';
+
 import { useAuth } from './useAuth.js';
 
 export function usePermission(options: UsePermissionOptions): {
@@ -18,13 +20,13 @@ export function usePermission(options: UsePermissionOptions): {
   const { permissions, requireAll = true } = options;
 
   const hasAllPermissions = useMemo(() => {
-    if (!user) return false;
-    return permissions.every(permission => checkPermission(permission));
+    if (!user) { return false; }
+    return permissions.every((permission) => checkPermission(permission));
   }, [permissions, checkPermission, user]);
 
   const hasAnyPermission = useMemo(() => {
-    if (!user) return false;
-    return permissions.some(permission => checkPermission(permission));
+    if (!user) { return false; }
+    return permissions.some((permission) => checkPermission(permission));
   }, [permissions, checkPermission, user]);
 
   const hasPermission = requireAll ? hasAllPermissions : hasAnyPermission;
@@ -42,9 +44,9 @@ export function usePermission(options: UsePermissionOptions): {
  */
 export function useHasPermission(permission: string): boolean {
   const { checkPermission, user } = useAuth();
-  
+
   return useMemo(() => {
-    if (!user) return false;
+    if (!user) { return false; }
     return checkPermission(permission);
   }, [permission, checkPermission, user]);
 }
@@ -54,9 +56,9 @@ export function useHasPermission(permission: string): boolean {
  */
 export function useHasRole(role: string): boolean {
   const { hasRole, user } = useAuth();
-  
+
   return useMemo(() => {
-    if (!user) return false;
+    if (!user) { return false; }
     return hasRole(role);
   }, [role, hasRole, user]);
 }
@@ -64,7 +66,10 @@ export function useHasRole(role: string): boolean {
 /**
  * Hook to check multiple roles
  */
-export function useRoles(roles: string[], requireAll = false): {
+export function useRoles(
+  roles: string[],
+  requireAll = false,
+): {
   hasRole: boolean;
   hasAnyRole: boolean;
   hasAllRoles: boolean;
@@ -72,13 +77,13 @@ export function useRoles(roles: string[], requireAll = false): {
   const { hasRole, user } = useAuth();
 
   const hasAllRoles = useMemo(() => {
-    if (!user) return false;
-    return roles.every(role => hasRole(role));
+    if (!user) { return false; }
+    return roles.every((role) => hasRole(role));
   }, [roles, hasRole, user]);
 
   const hasAnyRole = useMemo(() => {
-    if (!user) return false;
-    return roles.some(role => hasRole(role));
+    if (!user) { return false; }
+    return roles.some((role) => hasRole(role));
   }, [roles, hasRole, user]);
 
   const hasRoleResult = requireAll ? hasAllRoles : hasAnyRole;

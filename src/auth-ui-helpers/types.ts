@@ -4,8 +4,9 @@
  */
 
 import type { ReactNode } from 'react';
-import type { 
-  UserProfile, 
+
+import type {
+  UserProfile,
   AuthenticationResult,
   AuthenticationRequest,
   NSMClassification,

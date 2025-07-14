@@ -5,12 +5,13 @@
  */
 
 import { useContext, useEffect, useCallback } from 'react';
-import type { AuthContextValue, UseAuthOptions } from '../types.js';
+
 import { AuthContext } from '../providers/AuthProvider.js';
+import type { AuthContextValue, UseAuthOptions } from '../types.js';
 
 export function useAuth(options?: UseAuthOptions): AuthContextValue {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -31,7 +32,7 @@ export function useAuth(options?: UseAuthOptions): AuthContextValue {
     }
 
     const interval = setInterval(() => {
-      context.refresh().catch(err => {
+      context.refresh().catch((err) => {
         console.error('Auto-refresh failed:', err);
       });
     }, refreshInterval);
@@ -63,7 +64,7 @@ export function useCurrentUser() {
  */
 export function useLogout() {
   const { logout } = useAuth();
-  
+
   const handleLogout = useCallback(async () => {
     try {
       await logout();

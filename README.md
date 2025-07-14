@@ -1,3 +1,42 @@
+# @xala-technologies/authentication v2.0.0
+
+## 🚀 MAJOR VERSION RELEASE - v2.0.0
+
+**Latest Version**: 2.0.0 (December 2024)  
+**Registry**: GitHub Packages (npm.pkg.github.com)  
+**Status**: Production Ready ✅
+
+### Quick Start Installation
+
+```bash
+# Install from GitHub Packages
+npm install @xala-technologies/authentication@2.0.0
+
+# Or with pnpm
+pnpm add @xala-technologies/authentication@2.0.0
+```
+
+### What's New in v2.0.0
+
+- ✅ **Enterprise Standards v6.0.2** complete integration
+- ✅ **Norwegian Compliance** (NSM, GDPR, DigDir) implementation  
+- ✅ **Zero TypeScript errors** - Full type safety
+- ✅ **Production-ready** authentication system
+- ✅ **OAuth 2.1, Norwegian ID, eIDAS** providers
+- ✅ **Complete RBAC system** with detailed permissions
+- ✅ **Advanced session management** with security monitoring
+- ✅ **Enterprise-grade security** hardening
+
+### Breaking Changes from v1.x
+
+- Enhanced TypeScript strict mode compliance
+- Updated Enterprise Standards dependency to v6.0.2
+- Refined authentication provider interfaces
+- Improved Norwegian compliance utilities
+- Streamlined package exports
+
+---
+
 # 🔐 @xala-technologies/authentication
 
 **Enterprise Authentication Library with Norwegian Support**
